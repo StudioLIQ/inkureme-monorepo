@@ -46,8 +46,8 @@ Open [http://localhost:3000](http://localhost:3000) to view the app.
 ## Features Implemented
 
 ✅ **Wallet Connection**
-- Connect/disconnect wallet button
-- Support for MetaMask and other injected wallets
+- Connect/disconnect button for KAIA Wallet
+- Only KAIA Wallet (injected) is supported
 - Shows connected address and network name
 
 ✅ **Mock USDT Minting**

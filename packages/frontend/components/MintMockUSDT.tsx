@@ -53,7 +53,7 @@ export function MintMockUSDT() {
   if (!isConnected) {
     return (
       <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg">
-        <p className="text-muted">Please connect your wallet to mint Mock USDT</p>
+        <p className="text-muted">Please connect your KAIA Wallet to mint Mock USDT</p>
       </div>
     )
   }

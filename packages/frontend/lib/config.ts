@@ -1,6 +1,6 @@
 import { defineChain } from 'viem'
 import { http, createConfig } from 'wagmi'
-import { injected, walletConnect } from 'wagmi/connectors'
+import { injected } from 'wagmi/connectors'
 import MockUSDTAbi from './abis/MockUSDT.json'
 import FlightDelayInsuranceAbi from './abis/FlightDelayInsurance.json'
 
@@ -48,14 +48,6 @@ export const config = createConfig({
   transports: {
     [kaiaTestnet.id]: http(),
   },
-  connectors: [
-    injected(),
-    ...(process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
-      ? [
-          walletConnect({
-            projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID,
-          }),
-        ]
-      : []),
-  ],
+  // Only support KAIA Wallet (injected)
+  connectors: [injected()],
 })

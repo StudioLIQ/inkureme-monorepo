@@ -56,9 +56,9 @@ export default function AvailablePolicies() {
       <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 pt-20">
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="card rounded-lg shadow-sm p-8 text-center">
-            <h2 className="text-2xl font-bold mb-4">Connect Wallet Required</h2>
+            <h2 className="text-2xl font-bold mb-4">Connect KAIA Wallet Required</h2>
             <p className="text-muted">
-              Please connect your wallet to view and purchase insurance policies.
+              Please connect your KAIA Wallet to view and purchase insurance policies.
             </p>
           </div>
         </div>

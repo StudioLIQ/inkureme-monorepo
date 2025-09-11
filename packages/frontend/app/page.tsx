@@ -25,7 +25,7 @@ export default function Home() {
               Getting Started
             </h3>
             <ol className="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-400">
-              <li>Connect your wallet to Kaia Testnet</li>
+              <li>Connect your KAIA Wallet to Kaia Testnet</li>
               <li>Mint some test mUSDT tokens</li>
               <li>Purchase flight delay insurance</li>
               <li>Claim automatically if your flight is delayed</li>
@@ -51,10 +51,10 @@ export default function Home() {
           {!isConnected && (
             <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6">
               <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-                Connect Wallet
+                Connect KAIA Wallet
               </h3>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Connect your wallet to interact with the smart contracts
+                Connect your KAIA Wallet to interact with the smart contracts
               </p>
             </div>
           )}

@@ -8,9 +8,22 @@ export function WalletButton() {
   const { connect, connectors, isPending, error } = useConnect()
   const { disconnect } = useDisconnect()
   const [mounted, setMounted] = useState(false)
+  const [kaiaAvailable, setKaiaAvailable] = useState<boolean>(true)
 
   useEffect(() => {
     setMounted(true)
+    try {
+      const w = typeof window !== 'undefined' ? (window as any) : undefined
+      const hasKaia = Boolean(
+        w?.kaia ||
+          w?.klaytn ||
+          w?.ethereum?.isKaia ||
+          (Array.isArray(w?.ethereum?.providers) && w.ethereum.providers.some((p: any) => p?.isKaia))
+      )
+      setKaiaAvailable(hasKaia)
+    } catch {
+      setKaiaAvailable(false)
+    }
   }, [])
 
   if (!mounted) return null
@@ -34,22 +47,24 @@ export function WalletButton() {
     )
   }
 
+  const injectedConnector = connectors.find((c) => c.id === 'injected')
+
   return (
     <div className="flex flex-col gap-2">
-      {connectors.map((connector) => (
-        <button
-          key={connector.id}
-          onClick={() => connect({ connector })}
-          disabled={isPending}
-          className="px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 disabled:bg-gray-400 transition-colors"
-        >
-          {isPending ? 'Connecting...' : `Connect with ${connector.name}`}
-        </button>
-      ))}
+      <button
+        onClick={() => injectedConnector && connect({ connector: injectedConnector })}
+        disabled={isPending || !injectedConnector || !kaiaAvailable}
+        className="px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 disabled:bg-gray-400 transition-colors"
+      >
+        {isPending ? 'Connecting…' : 'Connect KAIA Wallet'}
+      </button>
+      {!kaiaAvailable && (
+        <p className="text-sm text-muted">
+          KAIA Wallet not detected. Please install and refresh.
+        </p>
+      )}
       {error && (
-        <div className="text-red-500 text-sm mt-2">
-          {error.message}
-        </div>
+        <div className="text-red-500 text-sm mt-2">{error.message}</div>
       )}
     </div>
   )
