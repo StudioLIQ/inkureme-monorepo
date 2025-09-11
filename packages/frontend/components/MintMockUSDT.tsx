@@ -53,20 +53,18 @@ export function MintMockUSDT() {
   if (!isConnected) {
     return (
       <div className="p-6 bg-gray-100 dark:bg-gray-800 rounded-lg">
-        <p className="text-gray-600 dark:text-gray-400">
-          Please connect your wallet to mint Mock USDT
-        </p>
+        <p className="text-muted">Please connect your wallet to mint Mock USDT</p>
       </div>
     )
   }
 
   return (
-    <div className="p-6 bg-white dark:bg-gray-900 rounded-lg shadow-lg">
+    <div className="p-6 card rounded-lg shadow-sm">
       <h2 className="text-2xl font-bold mb-4">Mock USDT Faucet</h2>
       
       {balance !== undefined && (
         <div className="mb-4 p-3 bg-gray-50 dark:bg-gray-800 rounded">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Your Balance:</p>
+          <p className="text-sm text-muted">Your Balance:</p>
           <p className="text-xl font-mono font-semibold">
             {formatUnits(balance as bigint, 6)} mUSDT
           </p>
@@ -76,7 +74,7 @@ export function MintMockUSDT() {
       <button
         onClick={handleMint}
         disabled={isPending || isConfirming}
-        className="w-full px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-400 transition-colors font-semibold"
+        className="w-full px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 disabled:bg-gray-400 transition-colors font-semibold shadow-sm"
       >
         {isPending || isConfirming ? 'Processing...' : 'Mint 10,000 mUSDT'}
       </button>
@@ -84,10 +82,10 @@ export function MintMockUSDT() {
       {txStatus && (
         <div className={`mt-4 p-3 rounded-lg ${
           txStatus.includes('successful') 
-            ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' 
+            ? 'bg-primary-100 dark:bg-primary-900/30 text-primary' 
             : txStatus.includes('Error')
             ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300'
-            : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'
+            : 'bg-primary-100 dark:bg-primary-900/30 text-primary'
         }`}>
           {txStatus}
         </div>
@@ -103,12 +101,12 @@ export function MintMockUSDT() {
 
       {hash && (
         <div className="mt-4 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-          <p className="text-sm text-gray-600 dark:text-gray-400">Transaction Hash:</p>
+          <p className="text-sm text-muted">Transaction Hash:</p>
           <a 
             href={`https://baobab.kaiascan.io/tx/${hash}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-mono text-blue-500 hover:text-blue-600 break-all"
+            className="text-xs font-mono text-primary hover:opacity-90 break-all"
           >
             {hash}
           </a>

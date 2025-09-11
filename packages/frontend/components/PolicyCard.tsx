@@ -66,7 +66,7 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
   const isProcessing = isApproving || isApprovingConfirming || isBuying || isBuyingConfirming
 
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow">
+    <div className="card rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
       <div className="mb-4">
         <h3 className="text-lg font-semibold mb-2 line-clamp-2">
           {insurance.flightQuestion}
@@ -89,7 +89,7 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
         
         <div className="flex justify-between text-sm">
           <span className="text-gray-600 dark:text-gray-400">Available:</span>
-          <span className={`font-semibold ${availablePolicies === BigInt(0) ? 'text-red-500' : 'text-green-500'}`}>
+          <span className={`font-semibold ${availablePolicies === BigInt(0) ? 'text-red-500' : 'text-emerald-500'}`}>
             {availablePolicies.toString()} / {insurance.totalPolicies.toString()}
           </span>
         </div>
@@ -97,7 +97,7 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
         {insurance.isSettled && (
           <div className="flex justify-between text-sm">
             <span className="text-gray-600 dark:text-gray-400">Status:</span>
-            <span className={`font-semibold ${insurance.oracleAnswer === 'Yes' ? 'text-green-500' : 'text-gray-500'}`}>
+            <span className={`font-semibold ${insurance.oracleAnswer === 'Yes' ? 'text-emerald-500' : 'text-muted'}`}>
               {insurance.oracleAnswer === 'Yes' ? '✈️ Delayed' : '✓ On Time'}
             </span>
           </div>
@@ -107,25 +107,25 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
       {address && (
         <>
           {!!hasBought ? (
-            <div className="px-4 py-2 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg text-center text-sm font-medium">
+            <div className="px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary rounded-lg text-center text-sm font-medium">
               ✓ Already Purchased
             </div>
           ) : availablePolicies > BigInt(0) && !insurance.isSettled ? (
             <button
               onClick={handleBuy}
               disabled={isProcessing}
-              className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 transition-colors font-medium"
+              className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 disabled:bg-gray-400 transition-colors font-medium shadow-sm"
             >
               {isProcessing ? 
                 (isApproving || isApprovingConfirming ? 'Approving...' : 'Purchasing...') : 
                 (needsApproval ? 'Approve & Buy' : 'Buy Policy')}
             </button>
           ) : availablePolicies === BigInt(0) ? (
-            <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-lg text-center text-sm font-medium">
+            <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-muted rounded-lg text-center text-sm font-medium">
               Sold Out
             </div>
           ) : (
-            <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-lg text-center text-sm font-medium">
+            <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-muted rounded-lg text-center text-sm font-medium">
               Policy Settled
             </div>
           )}

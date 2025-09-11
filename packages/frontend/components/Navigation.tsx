@@ -15,11 +15,11 @@ export function Navigation() {
   ]
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
+    <header className="bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70 border-b border-[--color-border] sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center space-x-8">
-            <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white">
+            <Link href="/" className="text-2xl font-semibold text-foreground">
               🛡️ Inkureme
             </Link>
             <nav className="hidden md:flex space-x-6">
@@ -27,10 +27,10 @@ export function Navigation() {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${
+                  className={`text-sm font-medium transition-colors ${
                     pathname === item.href
-                      ? 'text-blue-600 dark:text-blue-400'
-                      : 'text-gray-700 dark:text-gray-300'
+                      ? 'text-primary'
+                      : 'text-muted hover:text-foreground'
                   }`}
                 >
                   {item.label}
@@ -47,8 +47,8 @@ export function Navigation() {
               href={item.href}
               className={`text-sm font-medium whitespace-nowrap px-2 py-1 rounded transition-colors ${
                 pathname === item.href
-                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400'
-                  : 'text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400'
+                  ? 'bg-primary-100 dark:bg-primary-900/30 text-primary'
+                  : 'text-muted hover:text-foreground'
               }`}
             >
               {item.label}

@@ -1,26 +1,73 @@
 @import "tailwindcss";
 
+/* Design tokens */
 :root {
+  /* Base colors */
   --background: #ffffff;
-  --foreground: #171717;
-}
+  --foreground: #0f172a; /* slate-900 */
+  --muted: #64748b;      /* slate-500 */
+  --card: #ffffff;
+  --border: #e2e8f0;     /* slate-200 */
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* Brand (tuned to flightdelay.app) */
+  --brand-50: #f5f8ff;
+  --brand-100: #e9f0ff;
+  --brand-200: #d6e2ff;
+  --brand-300: #b6caff;
+  --brand-400: #8ea9fb;
+  --brand-500: #5180F3; /* primary */
+  --brand-600: #3c6df1;
+  --brand-700: #2f5fe7;
+  --brand-800: #264dbe;
+  --brand-900: #203f9a;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0b1220; /* deep slate */
+    --foreground: #e5e7eb; /* gray-200 */
+    --muted: #94a3b8;      /* slate-400 */
+    --card: #0f172a;       /* slate-900 */
+    --border: #1f2937;     /* gray-800 */
   }
+}
+
+/* Expose tokens to Tailwind via CSS variables */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-border: var(--border);
+
+  --color-primary: var(--brand-500);
+  --color-primary-50: var(--brand-50);
+  --color-primary-100: var(--brand-100);
+  --color-primary-200: var(--brand-200);
+  --color-primary-300: var(--brand-300);
+  --color-primary-400: var(--brand-400);
+  --color-primary-600: var(--brand-600);
+  --color-primary-700: var(--brand-700);
+  --color-primary-800: var(--brand-800);
+  --color-primary-900: var(--brand-900);
+
+  /* Use system sans as default; if --font-poppins is defined elsewhere, it will take precedence in body */
+  --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Noto Sans, Ubuntu, Cantarell, Helvetica Neue, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+/* Base styles */
+html, body {
+  height: 100%;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-poppins), var(--font-sans);
+}
+
+/* Card + border defaults */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
 }

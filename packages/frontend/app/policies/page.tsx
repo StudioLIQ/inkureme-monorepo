@@ -53,11 +53,11 @@ export default function AvailablePolicies() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 pt-20">
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 pt-20">
         <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 text-center">
+          <div className="card rounded-lg shadow-sm p-8 text-center">
             <h2 className="text-2xl font-bold mb-4">Connect Wallet Required</h2>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-muted">
               Please connect your wallet to view and purchase insurance policies.
             </p>
           </div>
@@ -67,25 +67,25 @@ export default function AvailablePolicies() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 pt-20">
+    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 pt-20">
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">Available Insurance Policies</h1>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-muted">
             Browse and purchase flight delay insurance policies
           </p>
         </div>
 
         {insuranceCount === 0 ? (
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-8 text-center">
+          <div className="card rounded-lg shadow-sm p-8 text-center">
             <div className="text-6xl mb-4">📋</div>
             <h2 className="text-2xl font-bold mb-4">No Policies Available</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-muted mb-6">
               There are currently no insurance policies available for purchase.
             </p>
             <a
               href="/create"
-              className="inline-block px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="inline-block px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 transition-colors shadow-sm"
             >
               Create a Policy
             </a>
@@ -98,9 +98,9 @@ export default function AvailablePolicies() {
           </div>
         )}
 
-        <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900 rounded-lg">
+        <div className="mt-8 p-4 bg-primary-50 dark:bg-primary-900/30 rounded-lg">
           <h3 className="font-semibold mb-2">How it works:</h3>
-          <ol className="list-decimal list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
+          <ol className="list-decimal list-inside space-y-1 text-sm text-foreground/80">
             <li>Browse available insurance policies</li>
             <li>Click &quot;Buy Policy&quot; to purchase insurance</li>
             <li>Approve mUSDT spending if needed</li>
