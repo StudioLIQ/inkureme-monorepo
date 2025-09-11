@@ -22,15 +22,8 @@
   --brand-900: #064e3b;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0b1220; /* deep slate */
-    --foreground: #e5e7eb; /* gray-200 */
-    --muted: #94a3b8;      /* slate-400 */
-    --card: #0f172a;       /* slate-900 */
-    --border: #1f2937;     /* gray-800 */
-  }
-}
+/* Force light theme */
+:root { color-scheme: light; }
 
 /* Expose tokens to Tailwind via CSS variables */
 @theme inline {

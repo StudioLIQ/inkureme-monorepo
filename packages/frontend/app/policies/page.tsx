@@ -36,6 +36,7 @@ export default function AvailablePolicies() {
   const { isConnected } = useAccount()
   const { data: totalInsurances, refetch } = useTotalInsurances()
   const [refreshKey, setRefreshKey] = useState(0)
+  const [filterType, setFilterType] = useState<'all' | 'best-value' | 'popular'>('all')
 
   const insuranceCount = totalInsurances ? Number(totalInsurances) : 0
   const insuranceIds = Array.from({ length: insuranceCount }, (_, i) => BigInt(i + 1))
@@ -56,9 +57,14 @@ export default function AvailablePolicies() {
       <div className="min-h-screen bg-background pt-20">
         <div className="max-w-7xl mx-auto px-4 py-12">
           <div className="card p-8 text-center">
-            <h2 className="text-2xl font-bold mb-4">Connect KAIA Wallet Required</h2>
+            <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-2">Connect to Browse Policies</h2>
             <p className="text-muted">
-              Please connect your KAIA Wallet to view and purchase insurance policies.
+              Connect your wallet to view and purchase flight insurance policies
             </p>
           </div>
         </div>
@@ -69,60 +75,174 @@ export default function AvailablePolicies() {
   return (
     <div className="min-h-screen bg-background pt-20">
       <div className="max-w-7xl mx-auto px-4 py-12">
-        {/* Feature strip */}
-        <div className="mb-10 grid md:grid-cols-3 gap-4">
-          <div className="card p-4">
-            <div className="text-primary text-xl font-semibold">Transparent Payouts</div>
-            <p className="text-sm text-muted mt-1">Oracle-verified flight delays ensure fair, auditable claims.</p>
-          </div>
-          <div className="card p-4">
-            <div className="text-primary text-xl font-semibold">On-Chain Policies</div>
-            <p className="text-sm text-muted mt-1">Create and purchase coverage with instant settlement logic.</p>
-          </div>
-          <div className="card p-4">
-            <div className="text-primary text-xl font-semibold">Built on Kaia</div>
-            <p className="text-sm text-muted mt-1">Fast, low-cost transactions on the Kaia Testnet.</p>
+        {/* Hero Section */}
+        <div className="mb-10 bg-gradient-to-r from-primary-50 to-primary-100 rounded-2xl p-8">
+          <div className="grid md:grid-cols-2 gap-6 items-center">
+            <div>
+              <h1 className="text-4xl font-bold mb-4">Flight Delay Protection</h1>
+              <p className="text-lg text-muted mb-6">
+                Browse available coverage options and protect your journey with smart insurance policies.
+              </p>
+              <div className="flex flex-wrap gap-4">
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-sm font-medium">Instant Coverage</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-sm font-medium">Transparent Pricing</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  </svg>
+                  <span className="text-sm font-medium">Automatic Payouts</span>
+                </div>
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white/80 backdrop-blur rounded-lg p-4">
+                <div className="text-3xl font-bold text-primary">{insuranceCount}</div>
+                <div className="text-sm text-muted">Active Policies</div>
+              </div>
+              <div className="bg-white/80 backdrop-blur rounded-lg p-4">
+                <div className="text-3xl font-bold text-primary">24/7</div>
+                <div className="text-sm text-muted">Available</div>
+              </div>
+              <div className="bg-white/80 backdrop-blur rounded-lg p-4">
+                <div className="text-3xl font-bold text-primary">100%</div>
+                <div className="text-sm text-muted">Automated</div>
+              </div>
+              <div className="bg-white/80 backdrop-blur rounded-lg p-4">
+                <div className="text-3xl font-bold text-primary">0</div>
+                <div className="text-sm text-muted">Hidden Fees</div>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-4">Available Insurance Policies</h1>
-          <p className="text-muted">
-            Browse and purchase flight delay insurance policies
-          </p>
+
+        {/* Filters */}
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="text-2xl font-bold mb-1">Available Coverage</h2>
+            <p className="text-sm text-muted">Select a policy that matches your flight details</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setFilterType('all')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                filterType === 'all'
+                  ? 'bg-primary text-white'
+                  : 'bg-white border border-[--color-border] text-muted hover:bg-gray-50'
+              }`}
+            >
+              All Policies
+            </button>
+            <button
+              onClick={() => setFilterType('best-value')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                filterType === 'best-value'
+                  ? 'bg-primary text-white'
+                  : 'bg-white border border-[--color-border] text-muted hover:bg-gray-50'
+              }`}
+            >
+              Best Value
+            </button>
+            <button
+              onClick={() => setFilterType('popular')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                filterType === 'popular'
+                  ? 'bg-primary text-white'
+                  : 'bg-white border border-[--color-border] text-muted hover:bg-gray-50'
+              }`}
+            >
+              Most Popular
+            </button>
+          </div>
         </div>
 
         {insuranceCount === 0 ? (
-          <div className="card p-8 text-center">
-            <div className="text-6xl mb-4">📋</div>
-            <h2 className="text-2xl font-bold mb-4">No Policies Available</h2>
-            <p className="text-muted mb-6">
-              There are currently no insurance policies available for purchase.
+          <div className="card p-12 text-center">
+            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold mb-2">No Policies Available</h2>
+            <p className="text-muted mb-6 max-w-md mx-auto">
+              There are currently no insurance policies available. Be the first to create one and start earning premiums!
             </p>
             <a
               href="/create"
-              className="inline-block px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 transition-colors shadow-sm"
+              className="inline-flex items-center px-6 py-3 bg-primary text-white rounded-full hover:opacity-90 transition-colors shadow-sm font-medium"
             >
-              Create a Policy
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Create First Policy
             </a>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {insuranceIds.map((id) => (
-              <InsuranceLoader key={`${id}-${refreshKey}`} insuranceId={id} onPurchaseSuccess={handlePurchaseSuccess} />
-            ))}
-          </div>
-        )}
+          <>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {insuranceIds.map((id) => (
+                <InsuranceLoader key={`${id}-${refreshKey}`} insuranceId={id} onPurchaseSuccess={handlePurchaseSuccess} />
+              ))}
+            </div>
 
-        <div className="mt-8 p-4 bg-primary-50 dark:bg-primary-900/30 rounded-lg">
-          <h3 className="font-semibold mb-2">How it works:</h3>
-          <ol className="list-decimal list-inside space-y-1 text-sm text-foreground/80">
-            <li>Browse available insurance policies</li>
-            <li>Click &quot;Buy Policy&quot; to purchase insurance</li>
-            <li>Approve mUSDT spending if needed</li>
-            <li>Wait for the flight date and oracle settlement</li>
-            <li>Claim your payout if the flight is delayed</li>
-          </ol>
-        </div>
+            {/* Info Section */}
+            <div className="mt-12 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl p-6">
+              <h3 className="font-semibold mb-4 flex items-center">
+                <svg className="w-5 h-5 mr-2 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                How to Purchase Coverage
+              </h3>
+              <div className="grid md:grid-cols-4 gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold text-primary">1</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-1">Find Your Flight</p>
+                    <p className="text-xs text-muted">Match the policy to your flight details</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold text-primary">2</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-1">Review Coverage</p>
+                    <p className="text-xs text-muted">Check the payout amount and conditions</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold text-primary">3</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-1">Purchase Policy</p>
+                    <p className="text-xs text-muted">Complete payment with USDT</p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm font-bold text-primary">4</span>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium mb-1">Get Protected</p>
+                    <p className="text-xs text-muted">Receive automatic payout if delayed</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

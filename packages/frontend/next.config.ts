@@ -23,14 +23,12 @@ const nextConfig: NextConfig = {
     }
     return config
   },
-  experimental: {
-    turbo: {
-      // Mirror previous Webpack aliases in Turbopack
-      resolveAlias: {
-        'pino-pretty': path.join(__dirname, 'lib/empty.ts'),
-        'pino-abstract-transport': path.join(__dirname, 'lib/empty.ts'),
-        'sonic-boom': path.join(__dirname, 'lib/empty.ts'),
-      },
+  turbopack: {
+    // Mirror previous Webpack aliases in Turbopack
+    resolveAlias: {
+      'pino-pretty': path.join(__dirname, 'lib/empty.ts'),
+      'pino-abstract-transport': path.join(__dirname, 'lib/empty.ts'),
+      'sonic-boom': path.join(__dirname, 'lib/empty.ts'),
     },
   },
 }

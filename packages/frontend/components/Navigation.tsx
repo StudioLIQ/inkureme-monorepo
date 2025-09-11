@@ -15,7 +15,7 @@ export function Navigation() {
   ]
 
   return (
-    <header className="bg-white/80 dark:bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-background/70 border-b border-[--color-border] sticky top-0 z-50">
+    <header className="bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70 border-b border-[--color-border] sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center py-4">
           <div className="flex items-center space-x-8">
@@ -40,7 +40,7 @@ export function Navigation() {
             </nav>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/policies" className="hidden sm:inline-flex px-4 py-2 rounded-full border border-[--color-border] text-sm font-medium text-foreground hover:bg-gray-50 dark:hover:bg-gray-900">
+            <Link href="/policies" className="hidden sm:inline-flex px-4 py-2 rounded-full border border-[--color-border] text-sm font-medium text-foreground hover:bg-gray-50">
               Browse Policies
             </Link>
             <WalletButton />
@@ -53,7 +53,7 @@ export function Navigation() {
               href={item.href}
               className={`text-sm font-medium whitespace-nowrap px-2 py-1 rounded transition-colors ${
                 pathname === item.href
-                  ? 'bg-primary-100 dark:bg-primary-900/30 text-primary'
+                  ? 'bg-primary-100 text-primary'
                   : 'text-muted hover:text-foreground'
               }`}
             >

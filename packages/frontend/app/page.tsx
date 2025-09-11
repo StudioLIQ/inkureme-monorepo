@@ -16,18 +16,18 @@ export default function Home() {
           <div className="grid md:grid-cols-12 gap-10 items-center">
             <div className="md:col-span-7">
               <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-foreground">
-                Flight Delay Insurance,
-                <span className="block text-primary">simple and decentralized.</span>
+                Protect Your Journey
+                <span className="block text-primary">With Smart Flight Insurance</span>
               </h1>
               <p className="mt-5 text-lg text-muted max-w-2xl">
-                Protect your trips with transparent, on-chain coverage. Powered by Kaia and oracles.
+                Get automatic compensation when your flight is delayed. Fair, transparent, and powered by blockchain technology.
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <Link href="/policies" className="px-6 py-3 rounded-full bg-primary text-white font-semibold shadow-sm hover:opacity-90">
-                  Browse Policies
+                <Link href="/policies" className="px-6 py-3 rounded-full bg-primary text-white font-semibold shadow-sm hover:opacity-90 transition-all hover:shadow-md">
+                  Browse Available Coverage
                 </Link>
-                <Link href="/create" className="px-6 py-3 rounded-full border border-[--color-border] text-foreground font-semibold hover:bg-gray-50">
-                  Create a Policy
+                <Link href="/create" className="px-6 py-3 rounded-full border border-[--color-border] text-foreground font-semibold hover:bg-gray-50 transition-all">
+                  Become a Provider
                 </Link>
               </div>
             </div>
@@ -36,10 +36,15 @@ export default function Home() {
                 <MintMockUSDT />
               ) : (
                 <div className="card p-6">
-                  <h3 className="text-xl font-semibold mb-2">Get Test Tokens</h3>
-                  <p className="text-sm text-muted mb-4">Mint mUSDT for testing on Kaia Testnet.</p>
+                  <div className="mb-4">
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      Testnet Demo
+                    </span>
+                  </div>
+                  <h3 className="text-xl font-semibold mb-2">Start Your Trial</h3>
+                  <p className="text-sm text-muted mb-4">Get free test tokens to explore the platform risk-free.</p>
                   <div className="rounded-lg border border-dashed border-[--color-border] p-6 text-center text-sm text-muted">
-                    Connect your KAIA Wallet to mint test tokens.
+                    Connect your wallet to receive test tokens instantly
                   </div>
                 </div>
               )}
@@ -54,22 +59,31 @@ export default function Home() {
       {/* How it works */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold mb-6">How it works</h2>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-3">Simple as 1-2-3</h2>
+            <p className="text-muted max-w-2xl mx-auto">Get covered in minutes with our streamlined process</p>
+          </div>
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="card p-6">
-              <div className="text-primary text-2xl mb-2">①</div>
-              <h3 className="font-semibold mb-1">Choose a policy</h3>
-              <p className="text-sm text-muted">Select coverage for your specific flight and price.</p>
+            <div className="card p-6 hover:shadow-md transition-shadow cursor-pointer group">
+              <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center text-primary font-bold mb-4 group-hover:scale-110 transition-transform">
+                1
+              </div>
+              <h3 className="font-semibold mb-2 text-lg">Select Coverage</h3>
+              <p className="text-sm text-muted leading-relaxed">Browse available policies for your flight route and choose your coverage level.</p>
             </div>
-            <div className="card p-6">
-              <div className="text-primary text-2xl mb-2">②</div>
-              <h3 className="font-semibold mb-1">Purchase on-chain</h3>
-              <p className="text-sm text-muted">Pay with mUSDT and receive coverage instantly.</p>
+            <div className="card p-6 hover:shadow-md transition-shadow cursor-pointer group">
+              <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center text-primary font-bold mb-4 group-hover:scale-110 transition-transform">
+                2
+              </div>
+              <h3 className="font-semibold mb-2 text-lg">Quick Purchase</h3>
+              <p className="text-sm text-muted leading-relaxed">Complete your purchase in seconds with instant blockchain confirmation.</p>
             </div>
-            <div className="card p-6">
-              <div className="text-primary text-2xl mb-2">③</div>
-              <h3 className="font-semibold mb-1">Auto claim</h3>
-              <p className="text-sm text-muted">If delayed, payouts are processed transparently via oracle.</p>
+            <div className="card p-6 hover:shadow-md transition-shadow cursor-pointer group">
+              <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center text-primary font-bold mb-4 group-hover:scale-110 transition-transform">
+                3
+              </div>
+              <h3 className="font-semibold mb-2 text-lg">Automatic Payout</h3>
+              <p className="text-sm text-muted leading-relaxed">Receive compensation automatically if your flight is delayed - no paperwork needed.</p>
             </div>
           </div>
         </div>
@@ -81,22 +95,64 @@ export default function Home() {
       {/* Trust & Transparency */}
       <section className="py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold mb-6">Trust & Transparency</h2>
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold mb-3">Built on Trust</h2>
+            <p className="text-muted max-w-2xl mx-auto">Your protection is secured by smart contracts and verified data</p>
+          </div>
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="card p-6">
-              <div className="text-primary text-2xl mb-2">🔒</div>
-              <h3 className="font-semibold mb-1">Audited Building Blocks</h3>
-              <p className="text-sm text-muted">Contracts built on open standards and reputable libraries to reduce risk.</p>
+            <div className="card p-6 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center text-2xl mb-4">
+                🔒
+              </div>
+              <h3 className="font-semibold mb-2 text-lg">Secure & Audited</h3>
+              <p className="text-sm text-muted leading-relaxed">Smart contracts built with industry-standard security practices and open-source libraries.</p>
+              <div className="mt-4 inline-flex items-center text-xs text-primary font-medium">
+                Learn more →
+              </div>
             </div>
-            <div className="card p-6">
-              <div className="text-primary text-2xl mb-2">🧾</div>
-              <h3 className="font-semibold mb-1">On-Chain Transparency</h3>
-              <p className="text-sm text-muted">Every policy and payout is recorded on the Kaia blockchain.</p>
+            <div className="card p-6 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center text-2xl mb-4">
+                📊
+              </div>
+              <h3 className="font-semibold mb-2 text-lg">Fully Transparent</h3>
+              <p className="text-sm text-muted leading-relaxed">All transactions are visible on the blockchain - track every policy and payout in real-time.</p>
+              <div className="mt-4 inline-flex items-center text-xs text-primary font-medium">
+                View on explorer →
+              </div>
             </div>
-            <div className="card p-6">
-              <div className="text-primary text-2xl mb-2">🛰️</div>
-              <h3 className="font-semibold mb-1">Oracle Evidence</h3>
-              <p className="text-sm text-muted">Independent oracle responses determine outcomes in a verifiable way.</p>
+            <div className="card p-6 hover:shadow-md transition-shadow">
+              <div className="w-12 h-12 bg-primary-100 rounded-lg flex items-center justify-center text-2xl mb-4">
+                ✅
+              </div>
+              <h3 className="font-semibold mb-2 text-lg">Verified Data</h3>
+              <p className="text-sm text-muted leading-relaxed">Flight status verified by independent oracles ensuring fair and accurate claim settlements.</p>
+              <div className="mt-4 inline-flex items-center text-xs text-primary font-medium">
+                How it works →
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="py-16 bg-gradient-to-b from-white to-primary-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-4 gap-8 text-center">
+            <div>
+              <div className="text-3xl font-bold text-primary">100%</div>
+              <div className="text-sm text-muted mt-1">Automated Claims</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-primary">&lt; 1 min</div>
+              <div className="text-sm text-muted mt-1">Purchase Time</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-primary">24/7</div>
+              <div className="text-sm text-muted mt-1">Platform Availability</div>
+            </div>
+            <div>
+              <div className="text-3xl font-bold text-primary">0</div>
+              <div className="text-sm text-muted mt-1">Hidden Fees</div>
             </div>
           </div>
         </div>

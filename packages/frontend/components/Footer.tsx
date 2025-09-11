@@ -4,7 +4,7 @@ import Link from 'next/link'
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-[--color-border] bg-white/60 dark:bg-background/60 backdrop-blur">
+    <footer className="mt-16 border-t border-[--color-border] bg-white/60 backdrop-blur">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Desktop / Tablet Layout */}
         <div className="hidden md:grid md:grid-cols-3 gap-8 items-start">
