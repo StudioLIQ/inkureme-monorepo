@@ -16,8 +16,10 @@ contract FlightDelayInsurance is ReentrancyGuard {
         uint256 totalPolicies;
         uint256 soldPolicies;
         bytes32 questionId;
-        bool resolved;
+        bool settled;
         bool delayed;
+        uint256 producerWithdrawable;
+        bool producerWithdrawn;
     }
 
     struct PolicyPurchase {
@@ -25,12 +27,14 @@ contract FlightDelayInsurance is ReentrancyGuard {
         bool claimed;
     }
 
-    IERC20 public immutable token;
-    IRealityERC20 public immutable oracle;
+    IERC20 public immutable TOKEN;
+    IRealityERC20 public immutable ORACLE;
     
     uint256 private flightCounter;
     uint32 public constant QUESTION_TIMEOUT = 86400;
     uint32 public constant TEMPLATE_ID = 0;
+    uint256 public constant PAYOUT_PER_POLICY = 100 * 10**6; // 100 mUSDT
+    bytes32 public constant YES_ANSWER = bytes32(uint256(1));
     
     mapping(uint256 => Flight) public flights;
     mapping(uint256 => mapping(address => PolicyPurchase)) public policies;
@@ -51,10 +55,11 @@ contract FlightDelayInsurance is ReentrancyGuard {
         uint256 insurancePrice
     );
     
-    event InsuranceResolved(
+    event InsuranceSettled(
         uint256 indexed flightId,
         bool delayed,
-        bytes32 answer
+        bytes32 answer,
+        uint256 producerWithdrawable
     );
     
     event PayoutClaimed(
@@ -63,17 +68,34 @@ contract FlightDelayInsurance is ReentrancyGuard {
         uint256 amount
     );
     
-    event DepositRefunded(
+    event FundsWithdrawn(
         uint256 indexed flightId,
         address indexed producer,
         uint256 amount
     );
 
+    error FlightDoesNotExist();
+    error FlightAlreadySettled();
+    error FlightNotSettled();
+    error AllPoliciesSold();
+    error AlreadyPurchased();
+    error NoPolicyPurchased();
+    error AlreadyClaimed();
+    error FlightNotDelayed();
+    error NotProducer();
+    error AlreadyWithdrawn();
+    error NoFundsToWithdraw();
+    error OracleNotResolved();
+    error InvalidDeposit();
+    error InvalidPrice();
+    error InvalidPolicies();
+    error InsufficientDeposit();
+
     constructor(address _token, address _oracle) {
         require(_token != address(0), "Invalid token address");
         require(_oracle != address(0), "Invalid oracle address");
-        token = IERC20(_token);
-        oracle = IRealityERC20(_oracle);
+        TOKEN = IERC20(_token);
+        ORACLE = IRealityERC20(_oracle);
     }
 
     function createInsurance(
@@ -82,18 +104,17 @@ contract FlightDelayInsurance is ReentrancyGuard {
         uint256 insurancePrice,
         uint256 totalPolicies
     ) external nonReentrant returns (uint256 flightId) {
-        require(depositAmount > 0, "Deposit must be greater than 0");
-        require(insurancePrice > 0, "Insurance price must be greater than 0");
-        require(totalPolicies > 0, "Total policies must be greater than 0");
-        require(
-            depositAmount >= insurancePrice * totalPolicies,
-            "Deposit must cover all potential payouts"
-        );
+        if (depositAmount == 0) revert InvalidDeposit();
+        if (insurancePrice == 0) revert InvalidPrice();
+        if (totalPolicies == 0) revert InvalidPolicies();
         
-        token.safeTransferFrom(msg.sender, address(this), depositAmount);
+        uint256 requiredDeposit = PAYOUT_PER_POLICY * totalPolicies;
+        if (depositAmount < requiredDeposit) revert InsufficientDeposit();
+        
+        TOKEN.safeTransferFrom(msg.sender, address(this), depositAmount);
         
         bytes32 nonce = keccak256(abi.encodePacked(block.timestamp, msg.sender, flightCounter));
-        bytes32 questionId = oracle.askQuestion(
+        bytes32 questionId = ORACLE.askQuestion(
             TEMPLATE_ID,
             flightQuestion,
             address(0),
@@ -111,8 +132,10 @@ contract FlightDelayInsurance is ReentrancyGuard {
             totalPolicies: totalPolicies,
             soldPolicies: 0,
             questionId: questionId,
-            resolved: false,
-            delayed: false
+            settled: false,
+            delayed: false,
+            producerWithdrawable: 0,
+            producerWithdrawn: false
         });
         
         emit InsuranceCreated(
@@ -128,12 +151,12 @@ contract FlightDelayInsurance is ReentrancyGuard {
 
     function buyInsurance(uint256 flightId) external nonReentrant {
         Flight storage flight = flights[flightId];
-        require(flight.producer != address(0), "Flight does not exist");
-        require(!flight.resolved, "Flight already resolved");
-        require(flight.soldPolicies < flight.totalPolicies, "All policies sold");
-        require(!policies[flightId][msg.sender].purchased, "Already purchased");
+        if (flight.producer == address(0)) revert FlightDoesNotExist();
+        if (flight.settled) revert FlightAlreadySettled();
+        if (flight.soldPolicies >= flight.totalPolicies) revert AllPoliciesSold();
+        if (policies[flightId][msg.sender].purchased) revert AlreadyPurchased();
         
-        token.safeTransferFrom(msg.sender, address(this), flight.insurancePrice);
+        TOKEN.safeTransferFrom(msg.sender, address(this), flight.insurancePrice);
         
         flight.soldPolicies++;
         policies[flightId][msg.sender] = PolicyPurchase({
@@ -144,52 +167,62 @@ contract FlightDelayInsurance is ReentrancyGuard {
         emit InsurancePurchased(flightId, msg.sender, flight.insurancePrice);
     }
 
-    function resolveInsurance(uint256 flightId) external nonReentrant {
+    function settleInsurance(uint256 flightId) external nonReentrant {
         Flight storage flight = flights[flightId];
-        require(flight.producer != address(0), "Flight does not exist");
-        require(!flight.resolved, "Already resolved");
+        if (flight.producer == address(0)) revert FlightDoesNotExist();
+        if (flight.settled) revert FlightAlreadySettled();
         
-        bytes32 answer = oracle.resultFor(flight.questionId);
-        require(answer != bytes32(0), "Oracle has not resolved yet");
+        bytes32 answer = ORACLE.resultFor(flight.questionId);
+        if (answer == bytes32(0)) revert OracleNotResolved();
         
-        flight.resolved = true;
-        flight.delayed = (answer == bytes32(uint256(1)));
+        flight.settled = true;
+        flight.delayed = (answer == YES_ANSWER);
         
-        emit InsuranceResolved(flightId, flight.delayed, answer);
+        if (flight.delayed) {
+            // Flight was delayed - buyers can claim payouts
+            // Producer can only withdraw sales revenue
+            flight.producerWithdrawable = flight.soldPolicies * flight.insurancePrice;
+        } else {
+            // Flight was on time - producer gets everything
+            flight.producerWithdrawable = flight.depositAmount + (flight.soldPolicies * flight.insurancePrice);
+        }
+        
+        emit InsuranceSettled(flightId, flight.delayed, answer, flight.producerWithdrawable);
     }
 
     function claimPayout(uint256 flightId) external nonReentrant {
         Flight storage flight = flights[flightId];
-        require(flight.resolved, "Flight not resolved");
-        require(flight.delayed, "Flight was not delayed");
-        require(policies[flightId][msg.sender].purchased, "No policy purchased");
-        require(!policies[flightId][msg.sender].claimed, "Already claimed");
+        if (!flight.settled) revert FlightNotSettled();
+        if (!flight.delayed) revert FlightNotDelayed();
         
-        policies[flightId][msg.sender].claimed = true;
+        PolicyPurchase storage policy = policies[flightId][msg.sender];
+        if (!policy.purchased) revert NoPolicyPurchased();
+        if (policy.claimed) revert AlreadyClaimed();
         
-        uint256 payoutAmount = flight.depositAmount / flight.totalPolicies;
-        token.safeTransfer(msg.sender, payoutAmount);
+        policy.claimed = true;
         
-        emit PayoutClaimed(flightId, msg.sender, payoutAmount);
+        TOKEN.safeTransfer(msg.sender, PAYOUT_PER_POLICY);
+        
+        emit PayoutClaimed(flightId, msg.sender, PAYOUT_PER_POLICY);
     }
 
-    function refundDeposit(uint256 flightId) external nonReentrant {
+    function withdrawFunds(uint256 flightId) external nonReentrant {
         Flight storage flight = flights[flightId];
-        require(flight.producer == msg.sender, "Not the producer");
-        require(flight.resolved, "Flight not resolved");
-        require(!flight.delayed, "Cannot refund when flight was delayed");
+        if (flight.producer != msg.sender) revert NotProducer();
+        if (!flight.settled) revert FlightNotSettled();
+        if (flight.producerWithdrawn) revert AlreadyWithdrawn();
+        if (flight.producerWithdrawable == 0) revert NoFundsToWithdraw();
         
-        uint256 refundAmount = flight.depositAmount;
-        uint256 premiumsCollected = flight.soldPolicies * flight.insurancePrice;
-        uint256 totalRefund = refundAmount + premiumsCollected;
+        uint256 amount = flight.producerWithdrawable;
+        flight.producerWithdrawn = true;
+        flight.producerWithdrawable = 0;
         
-        flight.depositAmount = 0;
+        TOKEN.safeTransfer(msg.sender, amount);
         
-        token.safeTransfer(msg.sender, totalRefund);
-        
-        emit DepositRefunded(flightId, msg.sender, totalRefund);
+        emit FundsWithdrawn(flightId, msg.sender, amount);
     }
 
+    // View functions
     function getFlightInfo(uint256 flightId) external view returns (
         address producer,
         uint256 depositAmount,
@@ -197,8 +230,10 @@ contract FlightDelayInsurance is ReentrancyGuard {
         uint256 totalPolicies,
         uint256 soldPolicies,
         bytes32 questionId,
-        bool resolved,
-        bool delayed
+        bool settled,
+        bool delayed,
+        uint256 producerWithdrawable,
+        bool producerWithdrawn
     ) {
         Flight storage flight = flights[flightId];
         return (
@@ -208,8 +243,10 @@ contract FlightDelayInsurance is ReentrancyGuard {
             flight.totalPolicies,
             flight.soldPolicies,
             flight.questionId,
-            flight.resolved,
-            flight.delayed
+            flight.settled,
+            flight.delayed,
+            flight.producerWithdrawable,
+            flight.producerWithdrawn
         );
     }
 
@@ -223,5 +260,25 @@ contract FlightDelayInsurance is ReentrancyGuard {
 
     function getTotalFlights() external view returns (uint256) {
         return flightCounter;
+    }
+
+    function getOracleAnswer(uint256 flightId) external view returns (bytes32) {
+        return ORACLE.resultFor(flights[flightId].questionId);
+    }
+
+    function calculateProducerRefund(uint256 flightId) external view returns (uint256) {
+        Flight storage flight = flights[flightId];
+        if (!flight.settled) return 0;
+        return flight.producerWithdrawable;
+    }
+
+    function calculateBuyerPayout(uint256 flightId, address buyer) external view returns (uint256) {
+        Flight storage flight = flights[flightId];
+        PolicyPurchase storage policy = policies[flightId][buyer];
+        
+        if (!flight.settled || !flight.delayed || !policy.purchased || policy.claimed) {
+            return 0;
+        }
+        return PAYOUT_PER_POLICY;
     }
 }

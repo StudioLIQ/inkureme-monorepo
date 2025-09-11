@@ -15,3 +15,8 @@ localhost = "http://localhost:8545"
 line_length = 120
 tab_width = 4
 bracket_spacing = true
+
+[test]
+verbosity = 2
+fuzz = { runs = 256 }
+invariant = { runs = 256 }
