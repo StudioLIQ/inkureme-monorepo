@@ -1,0 +1,38 @@
+type Question @entity {
+  id: Bytes!
+  asker: Bytes!
+  templateId: Int!
+  bondToken: Bytes!
+  openingTs: Int!
+  timeoutSec: Int!
+  contentHash: Bytes
+  createdAt: Int!
+
+  # NEW: fully on-chain metadata
+  content: String!
+  outcomesPacked: String!
+  language: String!
+  category: String!
+  metadataURI: String!
+
+  # status & activity
+  lastAnswerTs: Int
+  bestAnswer: Bytes
+  bestBond: BigInt
+  finalized: Boolean!
+  pendingArbitration: Boolean!
+  totalAnswers: Int!
+  answers: [Answer!]! @derivedFrom(field: "question")
+}
+
+type Answer @entity {
+  id: Bytes!
+  question: Question!
+  answer: Bytes!
+  answerer: Bytes!
+  bond: BigInt!
+  ts: BigInt!
+  txHash: Bytes!
+  logIndex: Int!
+}
+

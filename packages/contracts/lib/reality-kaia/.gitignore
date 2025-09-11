@@ -1,0 +1,12 @@
+.env
+node_modules/
+.next/
+out/
+cache/
+artifacts/
+cache_forge/
+broadcast/
+*.log
+.DS_Store
+.idea/
+deployment

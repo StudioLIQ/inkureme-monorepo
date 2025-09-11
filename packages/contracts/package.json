@@ -1,0 +1,15 @@
+{
+  "name": "@inkureme/contracts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Inkureme Smart Contracts",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test",
+    "test:v": "forge test -vv",
+    "test:vvv": "forge test -vvv",
+    "deploy:local": "forge script script/DeployAll.s.sol --rpc-url http://localhost:8545 --broadcast",
+    "deploy:sepolia": "forge script script/DeployAll.s.sol --rpc-url $SEPOLIA_RPC_URL --broadcast --verify",
+    "deploy:kaia": "forge script script/DeployAll.s.sol --rpc-url $KAIA_RPC_URL --broadcast"
+  }
+}

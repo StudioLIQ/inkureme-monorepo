@@ -1,0 +1,11 @@
+{
+  "realitioERC20": null,
+  "arbitratorSimple": null,
+  "zapperWKAIA": null,
+  "USDT": "0xd077a400968890eacc75cdc901f0356c943e4fdb",
+  "WKAIA": "0x19Aac5f612f524B754CA7e7c41cbFa2E981A4432",
+  "PERMIT2": "0x000000000022D473030F116dDEE9F6B43aC78BA3",
+  "feeRecipient": "0x7abEdc832254DaA2032505e33A8Dd325841D6f2D",
+  "feeBps": 25
+}
+
