@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAccount } from 'wagmi'
 import { parseUnits, formatUnits } from 'viem'
 import { useCreateInsurance, useApproveUSDT, useUSDTAllowance, useUSDTBalance } from '@/hooks/useInsurance'
@@ -28,12 +28,21 @@ export default function CreateInsurance() {
 
   const needsApproval = allowance !== undefined && depositAmountBigInt > (allowance as bigint)
 
+  const handleCreate = useCallback(() => {
+    createInsurance(
+      formData.flightQuestion,
+      depositAmountBigInt,
+      insurancePriceBigInt,
+      totalPoliciesBigInt
+    )
+  }, [createInsurance, formData.flightQuestion, depositAmountBigInt, insurancePriceBigInt, totalPoliciesBigInt])
+
   useEffect(() => {
     if (approveSuccess && step === 'approve') {
       setStep('create')
       handleCreate()
     }
-  }, [approveSuccess, step])
+  }, [approveSuccess, step, handleCreate])
 
   useEffect(() => {
     if (createSuccess) {
@@ -53,15 +62,6 @@ export default function CreateInsurance() {
       setStep('create')
       handleCreate()
     }
-  }
-
-  const handleCreate = () => {
-    createInsurance(
-      formData.flightQuestion,
-      depositAmountBigInt,
-      insurancePriceBigInt,
-      totalPoliciesBigInt
-    )
   }
 
   const resetForm = () => {

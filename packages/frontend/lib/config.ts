@@ -34,11 +34,11 @@ export const kaiaTestnet = defineChain({
 export const contracts = {
   mockUSDT: {
     address: (process.env.NEXT_PUBLIC_MOCK_USDT_ADDRESS || '0x0000000000000000000000000000000000000000') as `0x${string}`,
-    abi: MockUSDTAbi as any,
+    abi: MockUSDTAbi as readonly unknown[],
   },
   flightDelayInsurance: {
     address: (process.env.NEXT_PUBLIC_FLIGHT_INSURANCE_ADDRESS || '0x0000000000000000000000000000000000000000') as `0x${string}`,
-    abi: FlightDelayInsuranceAbi as any,
+    abi: FlightDelayInsuranceAbi as readonly unknown[],
   },
 }
 

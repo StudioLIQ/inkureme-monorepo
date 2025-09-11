@@ -37,10 +37,18 @@ function MyPolicyCard({ insuranceId, isCreator }: { insuranceId: bigint, isCreat
   const { claimPayout, isPending: isClaiming, isConfirming: isClaimingConfirming, isSuccess: claimSuccess } = useClaimPayout()
   const { withdrawFunds, isPending: isWithdrawing, isConfirming: isWithdrawingConfirming, isSuccess: withdrawSuccess } = useWithdrawFunds()
 
+  // Refresh states after successful transactions
+  useEffect(() => {
+    if (settleSuccess || claimSuccess || withdrawSuccess) {
+      // Force re-render by updating a state
+      window.location.reload()
+    }
+  }, [settleSuccess, claimSuccess, withdrawSuccess])
+
   if (!insurance) return null
   
   const insuranceData = insurance as unknown as Insurance
-  const payoutPerPolicy = insuranceData.totalPolicies > 0n ? insuranceData.depositAmount / insuranceData.totalPolicies : 0n
+  const payoutPerPolicy = insuranceData.totalPolicies > BigInt(0) ? insuranceData.depositAmount / insuranceData.totalPolicies : BigInt(0)
   const totalRevenue = insuranceData.insurancePrice * insuranceData.policiesSold
 
   const handleSettle = () => {
@@ -54,14 +62,6 @@ function MyPolicyCard({ insuranceId, isCreator }: { insuranceId: bigint, isCreat
   const handleWithdraw = () => {
     withdrawFunds(insuranceId)
   }
-
-  // Refresh states after successful transactions
-  useEffect(() => {
-    if (settleSuccess || claimSuccess || withdrawSuccess) {
-      // Force re-render by updating a state
-      window.location.reload()
-    }
-  }, [settleSuccess, claimSuccess, withdrawSuccess])
 
   return (
     <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6">
@@ -78,7 +78,7 @@ function MyPolicyCard({ insuranceId, isCreator }: { insuranceId: bigint, isCreat
               Creator
             </span>
           )}
-          {hasBought && (
+          {!!hasBought && (
             <span className="px-2 py-1 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded">
               Buyer
             </span>
@@ -123,7 +123,7 @@ function MyPolicyCard({ insuranceId, isCreator }: { insuranceId: bigint, isCreat
           </>
         )}
 
-        {hasBought && (
+        {!!hasBought && (
           <div className="flex justify-between">
             <span className="text-gray-600 dark:text-gray-400">Potential Payout:</span>
             <span className="font-semibold">{formatUnits(payoutPerPolicy, 6)} mUSDT</span>
@@ -175,7 +175,7 @@ function MyPolicyCard({ insuranceId, isCreator }: { insuranceId: bigint, isCreat
         )}
 
         {/* Buyer Actions */}
-        {hasBought && insuranceData.isSettled && insuranceData.oracleAnswer === 'Yes' && !hasClaimed && (
+        {!!hasBought && insuranceData.isSettled && insuranceData.oracleAnswer === 'Yes' && !hasClaimed && (
           <button
             onClick={handleClaim}
             disabled={isClaiming || isClaimingConfirming}
@@ -185,13 +185,13 @@ function MyPolicyCard({ insuranceId, isCreator }: { insuranceId: bigint, isCreat
           </button>
         )}
 
-        {hasBought && hasClaimed && (
+        {!!hasBought && !!hasClaimed && (
           <div className="px-4 py-2 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg text-center text-sm font-medium">
             ✓ Payout Claimed
           </div>
         )}
 
-        {hasBought && insuranceData.isSettled && insuranceData.oracleAnswer === 'No' && (
+        {!!hasBought && insuranceData.isSettled && insuranceData.oracleAnswer === 'No' && (
           <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-lg text-center text-sm">
             No payout (flight on time)
           </div>
@@ -208,32 +208,8 @@ export default function MyPolicies() {
   const insuranceCount = totalInsurances ? Number(totalInsurances) : 0
   const insuranceIds = Array.from({ length: insuranceCount }, (_, i) => BigInt(i + 1))
 
-  const [createdPolicies, setCreatedPolicies] = useState<bigint[]>([])
-  const [purchasedPolicies, setPurchasedPolicies] = useState<bigint[]>([])
-
-  // Filter policies based on creator and buyer status
-  useEffect(() => {
-    if (!address) return
-
-    const checkPolicies = async () => {
-      const created: bigint[] = []
-      const purchased: bigint[] = []
-
-      // This is a simplified version - in production, you'd want to batch these calls
-      // or use events to filter more efficiently
-      insuranceIds.forEach((id) => {
-        // These checks would be done with the actual contract data
-        // For now, we'll display all policies and let the component filter
-        created.push(id)
-        purchased.push(id)
-      })
-
-      setCreatedPolicies(created)
-      setPurchasedPolicies(purchased)
-    }
-
-    checkPolicies()
-  }, [address, insuranceCount])
+  // Note: In production, you would filter policies based on events or indexed data
+  // For now, we display all policies and let the component filter based on creator/buyer status
 
   if (!isConnected) {
     return (
@@ -287,7 +263,7 @@ export default function MyPolicies() {
             <div className="text-6xl mb-4">📋</div>
             <h2 className="text-2xl font-bold mb-4">No Policies Yet</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              You haven't created or purchased any insurance policies yet.
+              You haven&apos;t created or purchased any insurance policies yet.
             </p>
             <div className="flex gap-4 justify-center">
               <a
@@ -326,7 +302,7 @@ function PolicyChecker({ insuranceId, address, isCreator }: {
   // Show only if user is creator or has bought
   if (isCreator && insuranceData.creator === address) {
     return <MyPolicyCard insuranceId={insuranceId} isCreator={true} />
-  } else if (!isCreator && hasBought) {
+  } else if (!isCreator && !!hasBought) {
     return <MyPolicyCard insuranceId={insuranceId} isCreator={false} />
   }
   

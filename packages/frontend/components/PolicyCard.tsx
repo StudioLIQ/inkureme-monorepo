@@ -36,13 +36,13 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
 
   const needsApproval = allowance !== undefined && insurance.insurancePrice > (allowance as bigint)
   const availablePolicies = insurance.totalPolicies - insurance.policiesSold
-  const payoutPerPolicy = insurance.totalPolicies > 0n ? insurance.depositAmount / insurance.totalPolicies : 0n
+  const payoutPerPolicy = insurance.totalPolicies > BigInt(0) ? insurance.depositAmount / insurance.totalPolicies : BigInt(0)
 
   useEffect(() => {
     if (approveSuccess && isPurchasing) {
       buyInsurance(insuranceId)
     }
-  }, [approveSuccess, isPurchasing, insuranceId])
+  }, [approveSuccess, isPurchasing, insuranceId, buyInsurance])
 
   useEffect(() => {
     if (buySuccess) {
@@ -89,7 +89,7 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
         
         <div className="flex justify-between text-sm">
           <span className="text-gray-600 dark:text-gray-400">Available:</span>
-          <span className={`font-semibold ${availablePolicies === 0n ? 'text-red-500' : 'text-green-500'}`}>
+          <span className={`font-semibold ${availablePolicies === BigInt(0) ? 'text-red-500' : 'text-green-500'}`}>
             {availablePolicies.toString()} / {insurance.totalPolicies.toString()}
           </span>
         </div>
@@ -106,11 +106,11 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
 
       {address && (
         <>
-          {hasBought ? (
+          {!!hasBought ? (
             <div className="px-4 py-2 bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 rounded-lg text-center text-sm font-medium">
               ✓ Already Purchased
             </div>
-          ) : availablePolicies > 0n && !insurance.isSettled ? (
+          ) : availablePolicies > BigInt(0) && !insurance.isSettled ? (
             <button
               onClick={handleBuy}
               disabled={isProcessing}
@@ -120,7 +120,7 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
                 (isApproving || isApprovingConfirming ? 'Approving...' : 'Purchasing...') : 
                 (needsApproval ? 'Approve & Buy' : 'Buy Policy')}
             </button>
-          ) : availablePolicies === 0n ? (
+          ) : availablePolicies === BigInt(0) ? (
             <div className="px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-500 rounded-lg text-center text-sm font-medium">
               Sold Out
             </div>

@@ -17,7 +17,7 @@ interface Insurance {
   fundsWithdrawn: boolean
 }
 
-function InsuranceLoader({ insuranceId }: { insuranceId: bigint }) {
+function InsuranceLoader({ insuranceId, onPurchaseSuccess }: { insuranceId: bigint; onPurchaseSuccess: () => void }) {
   const { data: insurance } = useInsuranceDetails(insuranceId)
   
   if (!insurance) return null
@@ -29,7 +29,7 @@ function InsuranceLoader({ insuranceId }: { insuranceId: bigint }) {
     return null
   }
   
-  return <PolicyCard insuranceId={insuranceId} insurance={insuranceData} />
+  return <PolicyCard insuranceId={insuranceId} insurance={insuranceData} onPurchaseSuccess={onPurchaseSuccess} />
 }
 
 export default function AvailablePolicies() {
@@ -93,7 +93,7 @@ export default function AvailablePolicies() {
         ) : (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {insuranceIds.map((id) => (
-              <InsuranceLoader key={`${id}-${refreshKey}`} insuranceId={id} />
+              <InsuranceLoader key={`${id}-${refreshKey}`} insuranceId={id} onPurchaseSuccess={handlePurchaseSuccess} />
             ))}
           </div>
         )}
@@ -102,7 +102,7 @@ export default function AvailablePolicies() {
           <h3 className="font-semibold mb-2">How it works:</h3>
           <ol className="list-decimal list-inside space-y-1 text-sm text-gray-700 dark:text-gray-300">
             <li>Browse available insurance policies</li>
-            <li>Click "Buy Policy" to purchase insurance</li>
+            <li>Click &quot;Buy Policy&quot; to purchase insurance</li>
             <li>Approve mUSDT spending if needed</li>
             <li>Wait for the flight date and oracle settlement</li>
             <li>Claim your payout if the flight is delayed</li>
