@@ -213,9 +213,9 @@ export default function MyPolicies() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 pt-20">
+      <div className="min-h-screen bg-background pt-20">
         <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="card rounded-lg shadow-sm p-8 text-center">
+          <div className="card p-8 text-center">
             <h2 className="text-2xl font-bold mb-4">Connect KAIA Wallet Required</h2>
             <p className="text-muted">
               Please connect your KAIA Wallet to view your insurance policies.
@@ -227,7 +227,7 @@ export default function MyPolicies() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 pt-20">
+    <div className="min-h-screen bg-background pt-20">
       <div className="max-w-7xl mx-auto px-4 py-12">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">My Policies</h1>

@@ -1,4 +1,4 @@
-import { defineChain } from 'viem'
+import { defineChain, type EIP1193Provider } from 'viem'
 import { http, createConfig } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import MockUSDTAbi from './abis/MockUSDT.json'
@@ -10,8 +10,8 @@ export const kaiaTestnet = defineChain({
   name: 'Kaia Testnet',
   nativeCurrency: {
     decimals: 18,
-    name: 'KLAY',
-    symbol: 'KLAY',
+    name: 'KAIA',
+    symbol: 'KAIA',
   },
   rpcUrls: {
     default: {
@@ -48,6 +48,31 @@ export const config = createConfig({
   transports: {
     [kaiaTestnet.id]: http(),
   },
-  // Only support KAIA Wallet (injected)
-  connectors: [injected()],
+  // Only support KAIA Wallet (injected) by explicitly targeting KAIA provider
+  connectors: [
+    injected({
+      target: () => ({
+        id: 'kaia',
+        name: 'KAIA Wallet',
+        provider(windowArg) {
+          type KaiaProvider = EIP1193Provider & { isKaia?: boolean }
+          type WindowWithKaia = Window & {
+            kaia?: KaiaProvider
+            klaytn?: KaiaProvider
+            ethereum?: (KaiaProvider & { providers?: KaiaProvider[] }) | undefined
+          }
+          const w = windowArg as unknown as WindowWithKaia
+          if (w?.kaia) return w.kaia
+          if (w?.klaytn) return w.klaytn
+          if (w?.ethereum?.isKaia) return w.ethereum
+          const providers: KaiaProvider[] = Array.isArray(w?.ethereum?.providers)
+            ? (w.ethereum!.providers as KaiaProvider[])
+            : []
+          const p = providers.find((prov: KaiaProvider) => prov?.isKaia)
+          if (p) return p
+          return undefined
+        },
+      }),
+    }),
+  ],
 })

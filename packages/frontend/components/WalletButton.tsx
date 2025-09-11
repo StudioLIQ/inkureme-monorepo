@@ -2,6 +2,14 @@
 
 import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { useState, useEffect } from 'react'
+import type { EIP1193Provider } from 'viem'
+
+type KaiaProvider = EIP1193Provider & { isKaia?: boolean }
+type WindowWithKaia = Window & {
+  kaia?: KaiaProvider
+  klaytn?: KaiaProvider
+  ethereum?: (KaiaProvider & { providers?: KaiaProvider[] }) | undefined
+}
 
 export function WalletButton() {
   const { address, isConnected, chain } = useAccount()
@@ -13,12 +21,12 @@ export function WalletButton() {
   useEffect(() => {
     setMounted(true)
     try {
-      const w = typeof window !== 'undefined' ? (window as any) : undefined
+      const w = typeof window !== 'undefined' ? (window as WindowWithKaia) : undefined
+      const providers: KaiaProvider[] = Array.isArray(w?.ethereum?.providers)
+        ? (w!.ethereum!.providers as KaiaProvider[])
+        : []
       const hasKaia = Boolean(
-        w?.kaia ||
-          w?.klaytn ||
-          w?.ethereum?.isKaia ||
-          (Array.isArray(w?.ethereum?.providers) && w.ethereum.providers.some((p: any) => p?.isKaia))
+        w?.kaia || w?.klaytn || w?.ethereum?.isKaia || providers.some((p: KaiaProvider) => p?.isKaia)
       )
       setKaiaAvailable(hasKaia)
     } catch {
@@ -47,14 +55,14 @@ export function WalletButton() {
     )
   }
 
-  const injectedConnector = connectors.find((c) => c.id === 'injected')
+  const injectedConnector = connectors.find((c) => c.id === 'kaia')
 
   return (
     <div className="flex flex-col gap-2">
       <button
         onClick={() => injectedConnector && connect({ connector: injectedConnector })}
         disabled={isPending || !injectedConnector || !kaiaAvailable}
-        className="px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 disabled:bg-gray-400 transition-colors"
+        className="px-6 py-2.5 bg-primary text-white rounded-full hover:opacity-90 disabled:bg-gray-400 transition-colors text-sm font-medium shadow-sm"
       >
         {isPending ? 'Connecting…' : 'Connect KAIA Wallet'}
       </button>

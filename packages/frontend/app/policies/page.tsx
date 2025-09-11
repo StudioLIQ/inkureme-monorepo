@@ -53,9 +53,9 @@ export default function AvailablePolicies() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 pt-20">
+      <div className="min-h-screen bg-background pt-20">
         <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="card rounded-lg shadow-sm p-8 text-center">
+          <div className="card p-8 text-center">
             <h2 className="text-2xl font-bold mb-4">Connect KAIA Wallet Required</h2>
             <p className="text-muted">
               Please connect your KAIA Wallet to view and purchase insurance policies.
@@ -67,8 +67,23 @@ export default function AvailablePolicies() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 pt-20">
+    <div className="min-h-screen bg-background pt-20">
       <div className="max-w-7xl mx-auto px-4 py-12">
+        {/* Feature strip */}
+        <div className="mb-10 grid md:grid-cols-3 gap-4">
+          <div className="card p-4">
+            <div className="text-primary text-xl font-semibold">Transparent Payouts</div>
+            <p className="text-sm text-muted mt-1">Oracle-verified flight delays ensure fair, auditable claims.</p>
+          </div>
+          <div className="card p-4">
+            <div className="text-primary text-xl font-semibold">On-Chain Policies</div>
+            <p className="text-sm text-muted mt-1">Create and purchase coverage with instant settlement logic.</p>
+          </div>
+          <div className="card p-4">
+            <div className="text-primary text-xl font-semibold">Built on Kaia</div>
+            <p className="text-sm text-muted mt-1">Fast, low-cost transactions on the Kaia Testnet.</p>
+          </div>
+        </div>
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">Available Insurance Policies</h1>
           <p className="text-muted">
@@ -77,7 +92,7 @@ export default function AvailablePolicies() {
         </div>
 
         {insuranceCount === 0 ? (
-          <div className="card rounded-lg shadow-sm p-8 text-center">
+          <div className="card p-8 text-center">
             <div className="text-6xl mb-4">📋</div>
             <h2 className="text-2xl font-bold mb-4">No Policies Available</h2>
             <p className="text-muted mb-6">

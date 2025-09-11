@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi'
 import { formatUnits } from 'viem'
 import { contracts } from '@/lib/config'
@@ -42,13 +42,17 @@ export function MintMockUSDT() {
   }
 
   // Update status based on transaction state
-  if (isConfirming && txStatus !== 'Transaction pending...') {
-    setTxStatus('Transaction pending...')
-  }
-  if (isSuccess && txStatus !== 'Mint successful!') {
-    setTxStatus('Mint successful!')
-    setTimeout(() => setTxStatus(''), 5000)
-  }
+  useEffect(() => {
+    if (isConfirming) {
+      setTxStatus('Transaction pending...')
+      return
+    }
+    if (isSuccess) {
+      setTxStatus('Mint successful!')
+      const t = setTimeout(() => setTxStatus(''), 5000)
+      return () => clearTimeout(t)
+    }
+  }, [isConfirming, isSuccess])
 
   if (!isConnected) {
     return (
@@ -59,7 +63,7 @@ export function MintMockUSDT() {
   }
 
   return (
-    <div className="p-6 card rounded-lg shadow-sm">
+    <div className="p-6 card">
       <h2 className="text-2xl font-bold mb-4">Mock USDT Faucet</h2>
       
       {balance !== undefined && (
@@ -74,7 +78,7 @@ export function MintMockUSDT() {
       <button
         onClick={handleMint}
         disabled={isPending || isConfirming}
-        className="w-full px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 disabled:bg-gray-400 transition-colors font-semibold shadow-sm"
+        className="w-full px-6 py-3 bg-primary text-white rounded-full hover:opacity-90 disabled:bg-gray-400 transition-colors font-semibold shadow-sm"
       >
         {isPending || isConfirming ? 'Processing...' : 'Mint 10,000 mUSDT'}
       </button>

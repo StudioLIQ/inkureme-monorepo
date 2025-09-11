@@ -66,7 +66,7 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
   const isProcessing = isApproving || isApprovingConfirming || isBuying || isBuyingConfirming
 
   return (
-    <div className="card rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
+    <div className="card p-6 hover:shadow-md transition-shadow">
       <div className="mb-4">
         <h3 className="text-lg font-semibold mb-2 line-clamp-2">
           {insurance.flightQuestion}
@@ -107,14 +107,14 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
       {address && (
         <>
           {!!hasBought ? (
-            <div className="px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary rounded-lg text-center text-sm font-medium">
+            <div className="px-4 py-2 bg-primary-100 dark:bg-primary-900/30 text-primary rounded-full text-center text-sm font-medium">
               ✓ Already Purchased
             </div>
           ) : availablePolicies > BigInt(0) && !insurance.isSettled ? (
             <button
               onClick={handleBuy}
               disabled={isProcessing}
-              className="w-full px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 disabled:bg-gray-400 transition-colors font-medium shadow-sm"
+              className="w-full px-5 py-2.5 bg-primary text-white rounded-full hover:opacity-90 disabled:bg-gray-400 transition-colors font-semibold shadow-sm"
             >
               {isProcessing ? 
                 (isApproving || isApprovingConfirming ? 'Approving...' : 'Purchasing...') : 

@@ -8,83 +8,99 @@ export default function Home() {
   const { isConnected } = useAccount()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 pt-20">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-            Flight Delay Insurance
-          </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400">
-            Decentralized insurance for flight delays on Kaia Network
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6">
-            <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-              Getting Started
-            </h3>
-            <ol className="list-decimal list-inside space-y-2 text-gray-600 dark:text-gray-400">
-              <li>Connect your KAIA Wallet to Kaia Testnet</li>
-              <li>Mint some test mUSDT tokens</li>
-              <li>Purchase flight delay insurance</li>
-              <li>Claim automatically if your flight is delayed</li>
-            </ol>
-            <div className="mt-6 flex gap-3">
-              <Link
-                href="/create"
-                className="px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-colors text-sm font-medium shadow-sm"
-              >
-                Create Policy
-              </Link>
-              <Link
-                href="/policies"
-                className="px-4 py-2 bg-foreground text-background rounded-lg hover:opacity-90 transition-colors text-sm font-medium shadow-sm"
-              >
-                Browse Policies
-              </Link>
-            </div>
-          </div>
-
-          {isConnected && <MintMockUSDT />}
-          
-          {!isConnected && (
-            <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6">
-              <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-                Connect KAIA Wallet
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Connect your KAIA Wallet to interact with the smart contracts
+    <div className="min-h-screen bg-background">
+      {/* Hero */}
+      <section className="relative overflow-hidden pt-24">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary-50 to-white" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-12 gap-10 items-center">
+            <div className="md:col-span-7">
+              <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-foreground">
+                Flight Delay Insurance,
+                <span className="block text-primary">simple and decentralized.</span>
+              </h1>
+              <p className="mt-5 text-lg text-muted max-w-2xl">
+                Protect your trips with transparent, on-chain coverage. Powered by Kaia and oracles.
               </p>
-            </div>
-          )}
-        </div>
-
-        {isConnected && (
-          <div className="mt-8 bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6">
-            <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-              Contract Addresses
-            </h3>
-            <div className="space-y-2 font-mono text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Mock USDT:</span>
-                <span className="text-gray-900 dark:text-white">
-                  {process.env.NEXT_PUBLIC_MOCK_USDT_ADDRESS}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Insurance Contract:</span>
-                <span className="text-gray-900 dark:text-white">
-                  {process.env.NEXT_PUBLIC_FLIGHT_INSURANCE_ADDRESS}
-                </span>
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link href="/policies" className="px-6 py-3 rounded-full bg-primary text-white font-semibold shadow-sm hover:opacity-90">
+                  Browse Policies
+                </Link>
+                <Link href="/create" className="px-6 py-3 rounded-full border border-[--color-border] text-foreground font-semibold hover:bg-gray-50">
+                  Create a Policy
+                </Link>
               </div>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-500 mt-4">
-              ⚠️ Update these addresses in .env.local with your deployed contracts
-            </p>
+            <div className="md:col-span-5">
+              {isConnected ? (
+                <MintMockUSDT />
+              ) : (
+                <div className="card p-6">
+                  <h3 className="text-xl font-semibold mb-2">Get Test Tokens</h3>
+                  <p className="text-sm text-muted mb-4">Mint mUSDT for testing on Kaia Testnet.</p>
+                  <div className="rounded-lg border border-dashed border-[--color-border] p-6 text-center text-sm text-muted">
+                    Connect your KAIA Wallet to mint test tokens.
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        )}
-      </main>
+        </div>
+      </section>
+
+      {/* Divider */}
+      <div className="border-t border-[--color-border]" />
+
+      {/* How it works */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold mb-6">How it works</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="card p-6">
+              <div className="text-primary text-2xl mb-2">①</div>
+              <h3 className="font-semibold mb-1">Choose a policy</h3>
+              <p className="text-sm text-muted">Select coverage for your specific flight and price.</p>
+            </div>
+            <div className="card p-6">
+              <div className="text-primary text-2xl mb-2">②</div>
+              <h3 className="font-semibold mb-1">Purchase on-chain</h3>
+              <p className="text-sm text-muted">Pay with mUSDT and receive coverage instantly.</p>
+            </div>
+            <div className="card p-6">
+              <div className="text-primary text-2xl mb-2">③</div>
+              <h3 className="font-semibold mb-1">Auto claim</h3>
+              <p className="text-sm text-muted">If delayed, payouts are processed transparently via oracle.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Divider */}
+      <div className="border-t border-[--color-border]" />
+
+      {/* Trust & Transparency */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-bold mb-6">Trust & Transparency</h2>
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="card p-6">
+              <div className="text-primary text-2xl mb-2">🔒</div>
+              <h3 className="font-semibold mb-1">Audited Building Blocks</h3>
+              <p className="text-sm text-muted">Contracts built on open standards and reputable libraries to reduce risk.</p>
+            </div>
+            <div className="card p-6">
+              <div className="text-primary text-2xl mb-2">🧾</div>
+              <h3 className="font-semibold mb-1">On-Chain Transparency</h3>
+              <p className="text-sm text-muted">Every policy and payout is recorded on the Kaia blockchain.</p>
+            </div>
+            <div className="card p-6">
+              <div className="text-primary text-2xl mb-2">🛰️</div>
+              <h3 className="font-semibold mb-1">Oracle Evidence</h3>
+              <p className="text-sm text-muted">Independent oracle responses determine outcomes in a verifiable way.</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

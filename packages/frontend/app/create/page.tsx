@@ -76,9 +76,9 @@ export default function CreateInsurance() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 pt-20">
+      <div className="min-h-screen bg-background pt-20">
         <div className="max-w-2xl mx-auto px-4 py-12">
-          <div className="card rounded-lg shadow-sm p-8 text-center">
+          <div className="card p-8 text-center">
             <h2 className="text-2xl font-bold mb-4">Connect KAIA Wallet Required</h2>
             <p className="text-muted">
               Please connect your KAIA Wallet to create insurance policies.
@@ -91,9 +91,9 @@ export default function CreateInsurance() {
 
   if (step === 'success') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 pt-20">
+      <div className="min-h-screen bg-background pt-20">
         <div className="max-w-2xl mx-auto px-4 py-12">
-          <div className="card rounded-lg shadow-sm p-8 text-center">
+          <div className="card p-8 text-center">
             <div className="text-6xl mb-4">🎉</div>
             <h2 className="text-2xl font-bold mb-4 text-primary">Insurance Created Successfully!</h2>
             <p className="text-muted mb-6">
@@ -122,9 +122,9 @@ export default function CreateInsurance() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-primary-100 dark:from-gray-900 dark:to-gray-800 pt-20">
+    <div className="min-h-screen bg-background pt-20">
       <div className="max-w-2xl mx-auto px-4 py-12">
-        <div className="card rounded-lg shadow-sm p-8">
+        <div className="card p-8">
           <h1 className="text-3xl font-bold mb-6">Create Flight Insurance Policy</h1>
 
           {balance !== undefined && (
@@ -225,7 +225,7 @@ export default function CreateInsurance() {
             <button
               type="submit"
               disabled={step !== 'form' || isApproving || isApprovingConfirming || isCreating || isCreatingConfirming}
-              className="w-full px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 disabled:bg-gray-400 transition-colors font-semibold shadow-sm"
+              className="w-full px-6 py-3 bg-primary text-white rounded-full hover:opacity-90 disabled:bg-gray-400 transition-colors font-semibold shadow-sm"
             >
               {step === 'approve' && (isApproving || isApprovingConfirming) ? 'Approving mUSDT...' :
                step === 'create' && (isCreating || isCreatingConfirming) ? 'Creating Insurance...' :

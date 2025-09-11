@@ -9,17 +9,17 @@
   --card: #ffffff;
   --border: #e2e8f0;     /* slate-200 */
 
-  /* Brand (tuned to flightdelay.app) */
-  --brand-50: #f5f8ff;
-  --brand-100: #e9f0ff;
-  --brand-200: #d6e2ff;
-  --brand-300: #b6caff;
-  --brand-400: #8ea9fb;
-  --brand-500: #5180F3; /* primary */
-  --brand-600: #3c6df1;
-  --brand-700: #2f5fe7;
-  --brand-800: #264dbe;
-  --brand-900: #203f9a;
+  /* Brand (Etherisc-inspired green/teal palette) */
+  --brand-50:  #f0fdf6;
+  --brand-100: #dcfce7;
+  --brand-200: #bbf7d0;
+  --brand-300: #86efac;
+  --brand-400: #4ade80;
+  --brand-500: #16a34a; /* primary */
+  --brand-600: #059669;
+  --brand-700: #047857;
+  --brand-800: #065f46;
+  --brand-900: #064e3b;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -63,11 +63,13 @@ html, body {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-poppins), var(--font-sans);
+  font-family: var(--font-inter), var(--font-sans);
 }
 
 /* Card + border defaults */
 .card {
   background: var(--card);
   border: 1px solid var(--border);
+  border-radius: 1rem; /* rounded-xl */
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.05);
 }
