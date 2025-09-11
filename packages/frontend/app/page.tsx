@@ -1,25 +1,14 @@
 'use client'
 
-import { WalletButton } from '@/components/WalletButton'
 import { MintMockUSDT } from '@/components/MintMockUSDT'
 import { useAccount } from 'wagmi'
+import Link from 'next/link'
 
 export default function Home() {
   const { isConnected } = useAccount()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <header className="bg-white dark:bg-gray-900 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              🛡️ Inkureme
-            </h1>
-            <WalletButton />
-          </div>
-        </div>
-      </header>
-
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 pt-20">
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-12">
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
@@ -41,6 +30,20 @@ export default function Home() {
               <li>Purchase flight delay insurance</li>
               <li>Claim automatically if your flight is delayed</li>
             </ol>
+            <div className="mt-6 flex gap-3">
+              <Link
+                href="/create"
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
+              >
+                Create Policy
+              </Link>
+              <Link
+                href="/policies"
+                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm font-medium"
+              >
+                Browse Policies
+              </Link>
+            </div>
           </div>
 
           {isConnected && <MintMockUSDT />}
