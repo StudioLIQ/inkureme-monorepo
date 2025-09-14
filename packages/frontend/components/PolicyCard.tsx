@@ -40,7 +40,7 @@ function formatNumber(num: string | number): string {
 
 function formatDate(ts: bigint) {
   const d = new Date(Number(ts) * 1000)
-  return d.toLocaleString()
+  return d.toLocaleString('en-US', { timeZone: 'UTC' })
 }
 
 export function PolicyCard({ insuranceId, flight, onPurchaseSuccess }: PolicyCardProps) {

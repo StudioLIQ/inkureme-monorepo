@@ -40,9 +40,6 @@ export function Navigation() {
             </nav>
           </div>
           <div className="flex items-center gap-3">
-            <Link href="/policies" className="hidden sm:inline-flex px-4 py-2 rounded-full border border-[--color-border] text-sm font-medium text-foreground hover:bg-gray-50">
-              Browse Policies
-            </Link>
             <WalletButton />
           </div>
         </div>

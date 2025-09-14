@@ -4,10 +4,10 @@ import { injected } from 'wagmi/connectors'
 import MockUSDTAbi from './abis/MockUSDT.json'
 import FlightDelayInsuranceAbi from './abis/FlightDelayInsurance.json'
 
-// Kaia Testnet Chain Configuration
+// Kaia Testnet (Kairos)
 export const kaiaTestnet = defineChain({
   id: 1001,
-  name: 'Kaia Testnet',
+  name: 'KAIA Kairos',
   nativeCurrency: {
     decimals: 18,
     name: 'KAIA',
@@ -15,19 +15,44 @@ export const kaiaTestnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ['https://kaia-baobab.blockpi.network/v1/rpc/public'],
+      http: ['https://public-en-kairos.node.kaia.io'],
     },
     public: {
-      http: ['https://kaia-baobab.blockpi.network/v1/rpc/public'],
+      http: ['https://public-en-kairos.node.kaia.io'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'KairosScan',
+      url: 'https://kairos.kaiascan.io',
+    },
+  },
+  testnet: true,
+})
+
+// Kaia Mainnet (Cypress)
+export const kaiaMainnet = defineChain({
+  id: 8217,
+  name: 'KAIA Mainnet',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'KAIA',
+    symbol: 'KAIA',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://public-en.node.kaia.io'],
+    },
+    public: {
+      http: ['https://public-en.node.kaia.io'],
     },
   },
   blockExplorers: {
     default: {
       name: 'KaiaScan',
-      url: 'https://baobab.kaiascan.io',
+      url: 'https://kaiascan.io',
     },
   },
-  testnet: true,
 })
 
 // Contract Addresses
@@ -44,8 +69,9 @@ export const contracts = {
 
 // Wagmi Configuration
 export const config = createConfig({
-  chains: [kaiaTestnet],
+  chains: [kaiaMainnet, kaiaTestnet],
   transports: {
+    [kaiaMainnet.id]: http(),
     [kaiaTestnet.id]: http(),
   },
   // Only support KAIA Wallet (injected) by explicitly targeting KAIA provider

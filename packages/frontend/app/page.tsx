@@ -101,10 +101,54 @@ export default function Home() {
     <div className="min-h-screen bg-background">
       {/* Hero */}
       <section onMouseMove={onHeroMove} onMouseLeave={onHeroLeave} className="relative overflow-hidden pt-16 sm:pt-24 pb-16 sm:pb-24 lg:pb-28">
-        <div
-          className="absolute inset-0 -z-10 bg-gradient-to-b from-primary-50 to-white"
-          style={reduced ? undefined : { transform: `translate3d(${heroParallax.x}px, ${heroParallax.y}px, 0)`, transition: 'transform 120ms ease-out' }}
-        />
+        {/* Background layers */}
+        <div className="absolute inset-0 -z-10 pointer-events-none">
+          {/* Base gradient */}
+          <div
+            className="absolute inset-0 bg-gradient-to-b from-primary-50 to-white"
+            style={reduced ? undefined : { transform: `translate3d(${heroParallax.x}px, ${heroParallax.y}px, 0)`, transition: 'transform 120ms ease-out' }}
+          />
+          {/* Soft gradient blobs */}
+          <div
+            aria-hidden
+            className="absolute -top-24 -right-24 h-80 w-80 rounded-full bg-primary-200/50 blur-3xl mix-blend-multiply"
+            style={reduced ? undefined : { transform: `translate3d(${heroParallax.x * 0.35}px, ${heroParallax.y * 0.35}px, 0)`, transition: 'transform 160ms ease-out' }}
+          />
+          <div
+            aria-hidden
+            className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-primary-100/60 blur-3xl mix-blend-multiply"
+            style={reduced ? undefined : { transform: `translate3d(${heroParallax.x * -0.25}px, ${heroParallax.y * -0.25}px, 0)`, transition: 'transform 160ms ease-out' }}
+          />
+          {/* Subtle grid pattern with fade */}
+          <svg
+            aria-hidden
+            className="absolute inset-0 h-full w-full opacity-30 [mask-image:radial-gradient(70%_60%_at_50%_40%,black,transparent)]"
+          >
+            <defs>
+              <pattern id="hero-grid" width="32" height="32" patternUnits="userSpaceOnUse">
+                <path d="M32 0H0V32" fill="none" stroke="currentColor" strokeWidth="0.5" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#hero-grid)" className="text-[--color-border]" />
+          </svg>
+          {/* Thematic illustration */}
+          {/* Mobile: subtle, smaller, offset to avoid content overlap */}
+          <img
+            src="/hero-flight.svg"
+            alt=""
+            aria-hidden
+            className="block md:hidden absolute -right-24 -top-6 w-[320px] max-w-none opacity-25"
+            style={reduced ? undefined : { transform: `translate3d(${heroParallax.x * 0.18}px, ${heroParallax.y * 0.18}px, 0)`, transition: 'transform 200ms ease-out' }}
+          />
+          {/* Desktop: larger, more visible */}
+          <img
+            src="/hero-flight.svg"
+            alt=""
+            aria-hidden
+            className="hidden md:block absolute right-[-3rem] lg:right-[-6rem] top-10 lg:top-16 w-[480px] lg:w-[560px] max-w-none opacity-85 drop-shadow-xl"
+            style={reduced ? undefined : { transform: `translate3d(${heroParallax.x * 0.25}px, ${heroParallax.y * 0.25}px, 0)`, transition: 'transform 180ms ease-out' }}
+          />
+        </div>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-12 gap-10 items-center">
             <div className="md:col-span-7">

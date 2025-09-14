@@ -48,7 +48,7 @@ export function CountUp({ to, from = 0, durationMs = 1200, suffix = "", classNam
 
   return (
     <span ref={ref as any} className={className}>
-      {format ? format(val) : `${Math.round(val).toLocaleString()}${suffix}`}
+      {format ? format(val) : `${Math.round(val).toLocaleString('en-US')}${suffix}`}
     </span>
   )
 }

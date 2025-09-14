@@ -56,7 +56,9 @@ export function Footer() {
         </div>
 
         <div className="mt-10 flex items-center justify-between border-t border-[--color-border] pt-6 text-xs text-muted">
-          <div>© {new Date().getFullYear()} Inkureme. All rights reserved.</div>
+          <div>
+            © {new Intl.DateTimeFormat('en-US', { year: 'numeric', timeZone: 'UTC' }).format(new Date())} Inkureme. All rights reserved.
+          </div>
           <div className="hidden md:flex items-center gap-4">
             <a href="#" className="hover:text-foreground">Terms</a>
             <a href="#" className="hover:text-foreground">Privacy</a>
