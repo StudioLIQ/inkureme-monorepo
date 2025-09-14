@@ -102,7 +102,7 @@ export function MintMockUSDT() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-muted mb-1">Your Test Balance</p>
-              <p className="text-2xl font-bold text-foreground">
+              <p className="text-2xl font-bold text-foreground tabular-nums">
                 {formatNumber(formatUnits(balance as bigint, 6))}
                 <span className="text-sm font-normal text-muted ml-2">USDT</span>
               </p>

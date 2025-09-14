@@ -198,7 +198,7 @@ export default function CreateInsurance() {
               <div className="flex justify-between items-center">
                 <div>
                   <p className="text-sm text-muted mb-1">Available Balance</p>
-                  <p className="text-2xl font-bold text-foreground">
+                  <p className="text-2xl font-bold text-foreground tabular-nums">
                     {formatNumber(formatUnits(balance as bigint, 6))} <span className="text-base font-normal text-muted">USDT</span>
                   </p>
                 </div>
@@ -292,7 +292,7 @@ export default function CreateInsurance() {
               <div className="relative">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-muted">Required Pool</span>
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-medium tabular-nums">
                     {formatNumber(formatUnits(requiredDepositBi, 6))} USDT
                   </span>
                 </div>
@@ -392,28 +392,28 @@ export default function CreateInsurance() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs text-muted mb-1">Payout per Policy</p>
-                    <p className="font-bold text-lg">
+                    <p className="font-bold text-lg tabular-nums">
                       {formatNumber(formatUnits(payoutPerPolicyBi, 6))}
                       <span className="text-xs font-normal text-muted ml-1">USDT</span>
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-muted mb-1">Maximum Revenue</p>
-                    <p className="font-bold text-lg text-primary">
+                    <p className="font-bold text-lg text-primary tabular-nums">
                       {formatNumber((parseFloat(formData.insurancePrice) * parseFloat(formData.totalPolicies)).toFixed(2))}
                       <span className="text-xs font-normal text-muted ml-1">USDT</span>
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-muted mb-1">Coverage Pool</p>
-                    <p className="font-semibold">
+                    <p className="font-semibold tabular-nums">
                       {formatNumber(formatUnits(requiredDepositBi, 6))}
                       <span className="text-xs font-normal text-muted ml-1">USDT</span>
                     </p>
                   </div>
                   <div>
                     <p className="text-xs text-muted mb-1">Profit Margin</p>
-                    <p className="font-semibold text-primary">
+                    <p className="font-semibold text-primary tabular-nums">
                       {(() => {
                         const totalRev = parseFloat(formData.insurancePrice || '0') * parseFloat(formData.totalPolicies || '0')
                         const dep = parseFloat(formatUnits(requiredDepositBi, 6)) || 0

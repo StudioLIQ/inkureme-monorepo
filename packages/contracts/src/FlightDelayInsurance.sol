@@ -5,6 +5,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import {IRealityERC20} from "./interfaces/IRealityERC20.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 contract FlightDelayInsurance is ReentrancyGuard {
     using SafeERC20 for IERC20;
@@ -20,6 +21,12 @@ contract FlightDelayInsurance is ReentrancyGuard {
         bool delayed;
         uint256 producerWithdrawable;
         bool producerWithdrawn;
+        // On-chain metadata
+        string flightCode;
+        string departureAirport;
+        string arrivalAirport;
+        uint64 departureTimestamp; // UTC epoch seconds
+        uint16 delayThresholdMinutes;
     }
 
     struct PolicyPurchase {
@@ -46,7 +53,12 @@ contract FlightDelayInsurance is ReentrancyGuard {
         uint256 insurancePrice,
         uint256 totalPolicies,
         bytes32 questionId,
-        string flightQuestion
+        string flightQuestion,
+        string flightCode,
+        string departureAirport,
+        string arrivalAirport,
+        uint64 departureTimestamp,
+        uint16 delayThresholdMinutes
     );
     
     event InsurancePurchased(
@@ -99,7 +111,11 @@ contract FlightDelayInsurance is ReentrancyGuard {
     }
 
     function createInsurance(
-        string memory flightQuestion,
+        string memory flightCode,
+        string memory departureAirport,
+        string memory arrivalAirport,
+        uint64 departureTimestamp,
+        uint16 delayThresholdMinutes,
         uint256 depositAmount,
         uint256 insurancePrice,
         uint256 totalPolicies
@@ -114,6 +130,16 @@ contract FlightDelayInsurance is ReentrancyGuard {
         TOKEN.safeTransferFrom(msg.sender, address(this), depositAmount);
         
         bytes32 nonce = keccak256(abi.encodePacked(block.timestamp, msg.sender, flightCounter));
+        // Build deterministic question text from metadata
+        string memory flightQuestion = string(
+            abi.encodePacked(
+                "Did flight ", flightCode,
+                " from ", departureAirport,
+                " to ", arrivalAirport,
+                " scheduled at ", Strings.toString(uint256(departureTimestamp)),
+                " arrive later than ", Strings.toString(uint256(delayThresholdMinutes)), " minutes?"
+            )
+        );
         bytes32 questionId = ORACLE.askQuestion(
             TEMPLATE_ID,
             flightQuestion,
@@ -135,7 +161,12 @@ contract FlightDelayInsurance is ReentrancyGuard {
             settled: false,
             delayed: false,
             producerWithdrawable: 0,
-            producerWithdrawn: false
+            producerWithdrawn: false,
+            flightCode: flightCode,
+            departureAirport: departureAirport,
+            arrivalAirport: arrivalAirport,
+            departureTimestamp: departureTimestamp,
+            delayThresholdMinutes: delayThresholdMinutes
         });
         
         emit InsuranceCreated(
@@ -145,7 +176,12 @@ contract FlightDelayInsurance is ReentrancyGuard {
             insurancePrice,
             totalPolicies,
             questionId,
-            flightQuestion
+            flightQuestion,
+            flightCode,
+            departureAirport,
+            arrivalAirport,
+            departureTimestamp,
+            delayThresholdMinutes
         );
     }
 
@@ -247,6 +283,23 @@ contract FlightDelayInsurance is ReentrancyGuard {
             flight.delayed,
             flight.producerWithdrawable,
             flight.producerWithdrawn
+        );
+    }
+
+    function getFlightMetadata(uint256 flightId) external view returns (
+        string memory flightCode,
+        string memory departureAirport,
+        string memory arrivalAirport,
+        uint64 departureTimestamp,
+        uint16 delayThresholdMinutes
+    ) {
+        Flight storage flight = flights[flightId];
+        return (
+            flight.flightCode,
+            flight.departureAirport,
+            flight.arrivalAirport,
+            flight.departureTimestamp,
+            flight.delayThresholdMinutes
         );
     }
 

@@ -1,10 +1,11 @@
-'use client'
+"use client"
 
 import { useState, useEffect } from 'react'
 import { formatUnits } from 'viem'
 import { useAccount } from 'wagmi'
 import { useBuyInsurance, useApproveUSDT, useUSDTAllowance, useHasBoughtInsurance } from '@/hooks/useInsurance'
 import { contracts } from '@/lib/config'
+import TiltCard from '@/components/TiltCard'
 
 export interface FlightVM {
   producer: `0x${string}`
@@ -95,7 +96,7 @@ export function PolicyCard({ insuranceId, flight, onPurchaseSuccess }: PolicyCar
   const isProcessing = isApproving || isApprovingConfirming || isBuying || isBuyingConfirming
 
   return (
-    <div className="card p-4 sm:p-6 hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+    <TiltCard className="flex flex-col h-full">
       {/* Header */}
       <div className="mb-4">
         <div className="flex items-start justify-between mb-3">
@@ -136,13 +137,13 @@ export function PolicyCard({ insuranceId, flight, onPurchaseSuccess }: PolicyCar
       <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 flex-1">
         <div className="bg-gray-50 rounded-lg p-3">
           <p className="text-xs text-muted mb-1">Premium</p>
-          <p className="font-bold text-lg">
+          <p className="font-bold text-lg tabular-nums">
             ${formatNumber(formatUnits(flight.insurancePrice, 6))}
           </p>
         </div>
         <div className="bg-primary-50 rounded-lg p-3">
           <p className="text-xs text-muted mb-1">Payout if Delayed</p>
-          <p className="font-bold text-lg text-primary">
+          <p className="font-bold text-lg text-primary tabular-nums">
             ${formatNumber(formatUnits(payoutPerPolicy, 6))}
           </p>
         </div>
@@ -152,7 +153,7 @@ export function PolicyCard({ insuranceId, flight, onPurchaseSuccess }: PolicyCar
         <div className="mb-4">
           <div className="flex items-center justify-between text-xs">
             <span className="text-muted">Coverage Ratio</span>
-            <span className="font-bold text-primary">{coverageRatio.toFixed(1)}x</span>
+            <span className="font-bold text-primary tabular-nums">{coverageRatio.toFixed(1)}x</span>
           </div>
           <div className="mt-1 h-2 bg-gray-200 rounded-full overflow-hidden">
             <div 
@@ -166,7 +167,7 @@ export function PolicyCard({ insuranceId, flight, onPurchaseSuccess }: PolicyCar
       <div className="mb-3 sm:mb-4">
         <div className="flex items-center justify-between text-xs mb-1">
           <span className="text-muted">Available</span>
-          <span className={`font-semibold ${availablePolicies === BigInt(0) ? 'text-red-500' : 'text-foreground'}`}>
+          <span className={`font-semibold tabular-nums ${availablePolicies === BigInt(0) ? 'text-red-500' : 'text-foreground'}`}>
             {availablePolicies.toString()} of {flight.totalPolicies.toString()}
           </span>
         </div>
@@ -247,6 +248,6 @@ export function PolicyCard({ insuranceId, flight, onPurchaseSuccess }: PolicyCar
           <span>Instant Payout</span>
         </div>
       </div>
-    </div>
+    </TiltCard>
   )
 }
