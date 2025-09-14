@@ -1,25 +1,35 @@
 'use client'
 
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi'
+import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { contracts } from '@/lib/config'
-import { parseUnits, formatUnits } from 'viem'
+import { Address } from 'viem'
 
-// Hook for reading insurance details
-export function useInsuranceDetails(insuranceId: bigint | undefined) {
+// Flight info (numerics, status, ids)
+export function useFlightInfo(flightId: bigint | undefined) {
   return useReadContract({
     address: contracts.flightDelayInsurance.address,
     abi: contracts.flightDelayInsurance.abi,
-    functionName: 'insurances',
-    args: insuranceId !== undefined ? [insuranceId] : undefined,
+    functionName: 'getFlightInfo',
+    args: flightId !== undefined ? [flightId] : undefined,
+  })
+}
+
+// Flight metadata (codes, airports, time, threshold)
+export function useFlightMetadata(flightId: bigint | undefined) {
+  return useReadContract({
+    address: contracts.flightDelayInsurance.address,
+    abi: contracts.flightDelayInsurance.abi,
+    functionName: 'getFlightMetadata',
+    args: flightId !== undefined ? [flightId] : undefined,
   })
 }
 
 // Hook for getting total number of insurances
-export function useTotalInsurances() {
+export function useTotalFlights() {
   return useReadContract({
     address: contracts.flightDelayInsurance.address,
     abi: contracts.flightDelayInsurance.abi,
-    functionName: 'insuranceCounter',
+    functionName: 'getTotalFlights',
   })
 }
 
@@ -28,7 +38,7 @@ export function useHasBoughtInsurance(insuranceId: bigint | undefined, address: 
   return useReadContract({
     address: contracts.flightDelayInsurance.address,
     abi: contracts.flightDelayInsurance.abi,
-    functionName: 'hasBought',
+    functionName: 'hasPurchasedPolicy',
     args: insuranceId !== undefined && address ? [insuranceId, address] : undefined,
   })
 }
@@ -38,7 +48,7 @@ export function useHasClaimedPayout(insuranceId: bigint | undefined, address: `0
   return useReadContract({
     address: contracts.flightDelayInsurance.address,
     abi: contracts.flightDelayInsurance.abi,
-    functionName: 'hasClaimed',
+    functionName: 'hasClaimedPayout',
     args: insuranceId !== undefined && address ? [insuranceId, address] : undefined,
   })
 }
@@ -93,7 +103,11 @@ export function useCreateInsurance() {
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash })
 
   const createInsurance = (
-    flightQuestion: string,
+    flightCode: string,
+    departureAirport: string,
+    arrivalAirport: string,
+    departureTimestamp: bigint,
+    delayThresholdMinutes: number,
     depositAmount: bigint,
     insurancePrice: bigint,
     totalPolicies: bigint
@@ -102,7 +116,16 @@ export function useCreateInsurance() {
       address: contracts.flightDelayInsurance.address,
       abi: contracts.flightDelayInsurance.abi,
       functionName: 'createInsurance',
-      args: [flightQuestion, depositAmount, insurancePrice, totalPolicies],
+      args: [
+        flightCode,
+        departureAirport,
+        arrivalAirport,
+        Number(departureTimestamp),
+        delayThresholdMinutes,
+        depositAmount,
+        insurancePrice,
+        totalPolicies,
+      ],
     })
   }
 
@@ -145,12 +168,12 @@ export function useSettleInsurance() {
   const { data: hash, writeContract, isPending, error } = useWriteContract()
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash })
 
-  const settleInsurance = (insuranceId: bigint, answer: string) => {
+  const settleInsurance = (insuranceId: bigint) => {
     writeContract({
       address: contracts.flightDelayInsurance.address,
       abi: contracts.flightDelayInsurance.abi,
       functionName: 'settleInsurance',
-      args: [insuranceId, answer],
+      args: [insuranceId],
     })
   }
 
@@ -210,4 +233,13 @@ export function useWithdrawFunds() {
     isSuccess,
     error,
   }
+}
+
+// Hook to read constant payout per policy
+export function usePayoutPerPolicy() {
+  return useReadContract({
+    address: contracts.flightDelayInsurance.address,
+    abi: contracts.flightDelayInsurance.abi,
+    functionName: 'PAYOUT_PER_POLICY',
+  })
 }

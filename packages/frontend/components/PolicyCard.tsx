@@ -6,21 +6,25 @@ import { useAccount } from 'wagmi'
 import { useBuyInsurance, useApproveUSDT, useUSDTAllowance, useHasBoughtInsurance } from '@/hooks/useInsurance'
 import { contracts } from '@/lib/config'
 
-interface Insurance {
-  creator: `0x${string}`
-  flightQuestion: string
+export interface FlightVM {
+  producer: `0x${string}`
   depositAmount: bigint
   insurancePrice: bigint
   totalPolicies: bigint
-  policiesSold: bigint
-  isSettled: boolean
-  oracleAnswer: string
-  fundsWithdrawn: boolean
+  soldPolicies: bigint
+  settled: boolean
+  delayed: boolean
+  producerWithdrawn: boolean
+  flightCode: string
+  departureAirport: string
+  arrivalAirport: string
+  departureTimestamp: bigint
+  delayThresholdMinutes: number
 }
 
 interface PolicyCardProps {
   insuranceId: bigint
-  insurance: Insurance
+  flight: FlightVM
   onPurchaseSuccess?: () => void
 }
 
@@ -33,23 +37,12 @@ function formatNumber(num: string | number): string {
   }).format(n)
 }
 
-function extractFlightInfo(question: string): { flight: string; date: string; route: string } {
-  // Try to extract flight number (e.g., AA123, DL456)
-  const flightMatch = question.match(/([A-Z]{2}\d{3,4})/i)
-  const flight = flightMatch ? flightMatch[1] : 'Flight'
-  
-  // Try to extract date
-  const dateMatch = question.match(/(\d{4}-\d{2}-\d{2}|\d{1,2}\/\d{1,2}\/\d{4}|[A-Z][a-z]+ \d{1,2}, \d{4})/i)
-  const date = dateMatch ? dateMatch[1] : 'Upcoming'
-  
-  // Try to extract route (from X to Y)
-  const routeMatch = question.match(/from\s+([A-Z]{3})\s+to\s+([A-Z]{3})/i)
-  const route = routeMatch ? `${routeMatch[1]} → ${routeMatch[2]}` : ''
-  
-  return { flight, date, route }
+function formatDate(ts: bigint) {
+  const d = new Date(Number(ts) * 1000)
+  return d.toLocaleString()
 }
 
-export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: PolicyCardProps) {
+export function PolicyCard({ insuranceId, flight, onPurchaseSuccess }: PolicyCardProps) {
   const { address } = useAccount()
   const [isPurchasing, setIsPurchasing] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
@@ -60,21 +53,18 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
   const { approve, isPending: isApproving, isConfirming: isApprovingConfirming, isSuccess: approveSuccess } = useApproveUSDT()
   const { buyInsurance, isPending: isBuying, isConfirming: isBuyingConfirming, isSuccess: buySuccess, error } = useBuyInsurance()
 
-  const needsApproval = allowance !== undefined && insurance.insurancePrice > (allowance as bigint)
-  const availablePolicies = insurance.totalPolicies - insurance.policiesSold
-  const payoutPerPolicy = insurance.totalPolicies > BigInt(0) ? insurance.depositAmount / insurance.totalPolicies : BigInt(0)
+  const needsApproval = allowance !== undefined && flight.insurancePrice > (allowance as bigint)
+  const availablePolicies = flight.totalPolicies - flight.soldPolicies
+  const payoutPerPolicy = flight.totalPolicies > BigInt(0) ? flight.depositAmount / flight.totalPolicies : BigInt(0)
   
   // Calculate coverage ratio (payout / premium)
-  const coverageRatio = payoutPerPolicy > BigInt(0) && insurance.insurancePrice > BigInt(0)
-    ? Number(payoutPerPolicy) / Number(insurance.insurancePrice)
+  const coverageRatio = payoutPerPolicy > BigInt(0) && flight.insurancePrice > BigInt(0)
+    ? Number(payoutPerPolicy) / Number(flight.insurancePrice)
     : 0
   
-  // Extract flight info from question
-  const flightInfo = extractFlightInfo(insurance.flightQuestion)
-  
   // Calculate percentage sold
-  const percentageSold = insurance.totalPolicies > BigInt(0)
-    ? (Number(insurance.policiesSold) / Number(insurance.totalPolicies)) * 100
+  const percentageSold = flight.totalPolicies > BigInt(0)
+    ? (Number(flight.soldPolicies) / Number(flight.totalPolicies)) * 100
     : 0
 
   useEffect(() => {
@@ -105,16 +95,14 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
   const isProcessing = isApproving || isApprovingConfirming || isBuying || isBuyingConfirming
 
   return (
-    <div className="card p-6 hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+    <div className="card p-4 sm:p-6 hover:shadow-lg transition-all duration-300 flex flex-col h-full">
       {/* Header */}
       <div className="mb-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex-1">
-            {flightInfo.route && (
-              <div className="text-xs font-medium text-primary mb-1">{flightInfo.route}</div>
-            )}
-            <h3 className="font-bold text-lg mb-1">
-              {flightInfo.flight} • {flightInfo.date}
+            <div className="text-xs font-medium text-primary mb-1">{flight.departureAirport} → {flight.arrivalAirport}</div>
+            <h3 className="font-bold text-base sm:text-lg mb-1">
+              {flight.flightCode} • {formatDate(flight.departureTimestamp)}
             </h3>
           </div>
           {coverageRatio > 3 && (
@@ -139,17 +127,17 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
         {showDetails && (
           <div className="mt-3 p-3 bg-gray-50 rounded-lg text-xs text-muted">
             <p className="font-medium text-foreground mb-1">Coverage Conditions:</p>
-            <p className="italic">{insurance.flightQuestion}</p>
+            <p className="italic">Delay greater than {flight.delayThresholdMinutes} minutes for this flight.</p>
           </div>
         )}
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-2 gap-3 mb-4 flex-1">
+      <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 flex-1">
         <div className="bg-gray-50 rounded-lg p-3">
           <p className="text-xs text-muted mb-1">Premium</p>
           <p className="font-bold text-lg">
-            ${formatNumber(formatUnits(insurance.insurancePrice, 6))}
+            ${formatNumber(formatUnits(flight.insurancePrice, 6))}
           </p>
         </div>
         <div className="bg-primary-50 rounded-lg p-3">
@@ -161,25 +149,25 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
       </div>
 
       {/* Coverage Ratio Badge */}
-      <div className="mb-4">
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-muted">Coverage Ratio</span>
-          <span className="font-bold text-primary">{coverageRatio.toFixed(1)}x</span>
+        <div className="mb-4">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-muted">Coverage Ratio</span>
+            <span className="font-bold text-primary">{coverageRatio.toFixed(1)}x</span>
+          </div>
+          <div className="mt-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+            <div 
+              className="h-full bg-gradient-to-r from-primary-400 to-primary transition-all duration-500"
+              style={{ width: `${Math.min(coverageRatio * 20, 100)}%` }}
+            />
+          </div>
         </div>
-        <div className="mt-1 h-2 bg-gray-200 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-gradient-to-r from-primary-400 to-primary transition-all duration-500"
-            style={{ width: `${Math.min(coverageRatio * 20, 100)}%` }}
-          />
-        </div>
-      </div>
 
       {/* Availability */}
-      <div className="mb-4">
+      <div className="mb-3 sm:mb-4">
         <div className="flex items-center justify-between text-xs mb-1">
           <span className="text-muted">Available</span>
           <span className={`font-semibold ${availablePolicies === BigInt(0) ? 'text-red-500' : 'text-foreground'}`}>
-            {availablePolicies.toString()} of {insurance.totalPolicies.toString()}
+            {availablePolicies.toString()} of {flight.totalPolicies.toString()}
           </span>
         </div>
         <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -205,11 +193,11 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
                 Already Covered
               </div>
             </div>
-          ) : availablePolicies > BigInt(0) && !insurance.isSettled ? (
+          ) : availablePolicies > BigInt(0) && !flight.settled ? (
             <button
               onClick={handleBuy}
               disabled={isProcessing}
-              className="w-full px-5 py-3 bg-primary text-white rounded-full hover:opacity-90 disabled:bg-gray-400 transition-all font-semibold shadow-sm hover:shadow-md"
+              className="w-full px-4 py-3 sm:px-5 sm:py-3 bg-primary text-white rounded-full hover:opacity-90 disabled:bg-gray-400 transition-all font-semibold shadow-sm hover:shadow-md"
             >
               {isProcessing ? (
                 <span className="flex items-center justify-center">
@@ -220,9 +208,9 @@ export function PolicyCard({ insuranceId, insurance, onPurchaseSuccess }: Policy
                   {isApproving || isApprovingConfirming ? 'Approving...' : 'Purchasing...'}
                 </span>
               ) : needsApproval ? (
-                `Get Coverage for $${formatNumber(formatUnits(insurance.insurancePrice, 6))}`
+                `Get Coverage for $${formatNumber(formatUnits(flight.insurancePrice, 6))}`
               ) : (
-                `Get Coverage for $${formatNumber(formatUnits(insurance.insurancePrice, 6))}`
+                `Get Coverage for $${formatNumber(formatUnits(flight.insurancePrice, 6))}`
               )}
             </button>
           ) : availablePolicies === BigInt(0) ? (

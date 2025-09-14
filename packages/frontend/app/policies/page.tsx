@@ -3,38 +3,78 @@
 import { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import { PolicyCard } from '@/components/PolicyCard'
-import { useTotalInsurances, useInsuranceDetails } from '@/hooks/useInsurance'
+import { useTotalFlights, useFlightInfo, useFlightMetadata } from '@/hooks/useInsurance'
 
-interface Insurance {
-  creator: `0x${string}`
-  flightQuestion: string
+interface FlightVM {
+  producer: `0x${string}`
   depositAmount: bigint
   insurancePrice: bigint
   totalPolicies: bigint
-  policiesSold: bigint
-  isSettled: boolean
-  oracleAnswer: string
-  fundsWithdrawn: boolean
+  soldPolicies: bigint
+  settled: boolean
+  delayed: boolean
+  producerWithdrawn: boolean
+  // metadata
+  flightCode: string
+  departureAirport: string
+  arrivalAirport: string
+  departureTimestamp: bigint
+  delayThresholdMinutes: number
 }
 
 function InsuranceLoader({ insuranceId, onPurchaseSuccess }: { insuranceId: bigint; onPurchaseSuccess: () => void }) {
-  const { data: insurance } = useInsuranceDetails(insuranceId)
-  
-  if (!insurance) return null
-  
-  const insuranceData = insurance as unknown as Insurance
-  
+  const { data: info } = useFlightInfo(insuranceId)
+  const { data: meta } = useFlightMetadata(insuranceId)
+
+  if (!info || !meta) return null
+
+  const [producer, depositAmount, insurancePrice, totalPolicies, soldPolicies, _questionId, settled, delayed, _producerWithdrawable, producerWithdrawn] = info as unknown as [
+    `0x${string}`,
+    bigint,
+    bigint,
+    bigint,
+    bigint,
+    string,
+    boolean,
+    boolean,
+    bigint,
+    boolean,
+  ]
+  const [flightCode, departureAirport, arrivalAirport, departureTimestamp, delayThresholdMinutes] = meta as unknown as [
+    string,
+    string,
+    string,
+    bigint,
+    number,
+  ]
+
   // Only show active policies (not settled and has available slots)
-  if (insuranceData.isSettled || insuranceData.policiesSold >= insuranceData.totalPolicies) {
+  if (settled || soldPolicies >= totalPolicies) {
     return null
   }
-  
-  return <PolicyCard insuranceId={insuranceId} insurance={insuranceData} onPurchaseSuccess={onPurchaseSuccess} />
+
+  const vm: FlightVM = {
+    producer,
+    depositAmount,
+    insurancePrice,
+    totalPolicies,
+    soldPolicies,
+    settled,
+    delayed,
+    producerWithdrawn,
+    flightCode,
+    departureAirport,
+    arrivalAirport,
+    departureTimestamp,
+    delayThresholdMinutes,
+  }
+
+  return <PolicyCard insuranceId={insuranceId} flight={vm} onPurchaseSuccess={onPurchaseSuccess} />
 }
 
 export default function AvailablePolicies() {
   const { isConnected } = useAccount()
-  const { data: totalInsurances, refetch } = useTotalInsurances()
+  const { data: totalInsurances, refetch } = useTotalFlights()
   const [refreshKey, setRefreshKey] = useState(0)
   const [filterType, setFilterType] = useState<'all' | 'best-value' | 'popular'>('all')
 
@@ -54,16 +94,16 @@ export default function AvailablePolicies() {
 
   if (!isConnected) {
     return (
-      <div className="min-h-screen bg-background pt-20">
-        <div className="max-w-7xl mx-auto px-4 py-12">
-          <div className="card p-8 text-center">
+      <div className="min-h-screen bg-background pt-16">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="card p-6 text-center">
             <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold mb-2">Connect to Browse Policies</h2>
-            <p className="text-muted">
+            <h2 className="text-xl sm:text-2xl font-bold mb-2">Connect to Browse Policies</h2>
+            <p className="text-sm sm:text-base text-muted">
               Connect your wallet to view and purchase flight insurance policies
             </p>
           </div>
@@ -73,17 +113,17 @@ export default function AvailablePolicies() {
   }
 
   return (
-    <div className="min-h-screen bg-background pt-20">
-      <div className="max-w-7xl mx-auto px-4 py-12">
+    <div className="min-h-screen bg-background pt-16">
+      <div className="max-w-7xl mx-auto px-4 py-8">
         {/* Hero Section */}
-        <div className="mb-10 bg-gradient-to-r from-primary-50 to-primary-100 rounded-2xl p-8">
+        <div className="mb-8 bg-gradient-to-r from-primary-50 to-primary-100 rounded-2xl p-6">
           <div className="grid md:grid-cols-2 gap-6 items-center">
             <div>
-              <h1 className="text-4xl font-bold mb-4">Flight Delay Protection</h1>
-              <p className="text-lg text-muted mb-6">
+              <h1 className="text-2xl sm:text-4xl font-bold mb-3 sm:mb-4">Flight Delay Protection</h1>
+              <p className="text-sm sm:text-lg text-muted mb-4 sm:mb-6">
                 Browse available coverage options and protect your journey with smart insurance policies.
               </p>
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-3 sm:gap-4">
                 <div className="flex items-center gap-2">
                   <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -105,19 +145,19 @@ export default function AvailablePolicies() {
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/80 backdrop-blur rounded-lg p-4">
+              <div className="bg-white/80 backdrop-blur rounded-lg p-3 sm:p-4">
                 <div className="text-3xl font-bold text-primary">{insuranceCount}</div>
                 <div className="text-sm text-muted">Active Policies</div>
               </div>
-              <div className="bg-white/80 backdrop-blur rounded-lg p-4">
+              <div className="bg-white/80 backdrop-blur rounded-lg p-3 sm:p-4">
                 <div className="text-3xl font-bold text-primary">24/7</div>
                 <div className="text-sm text-muted">Available</div>
               </div>
-              <div className="bg-white/80 backdrop-blur rounded-lg p-4">
+              <div className="bg-white/80 backdrop-blur rounded-lg p-3 sm:p-4">
                 <div className="text-3xl font-bold text-primary">100%</div>
                 <div className="text-sm text-muted">Automated</div>
               </div>
-              <div className="bg-white/80 backdrop-blur rounded-lg p-4">
+              <div className="bg-white/80 backdrop-blur rounded-lg p-3 sm:p-4">
                 <div className="text-3xl font-bold text-primary">0</div>
                 <div className="text-sm text-muted">Hidden Fees</div>
               </div>
@@ -126,12 +166,12 @@ export default function AvailablePolicies() {
         </div>
 
         {/* Filters */}
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+        <div className="mb-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
           <div>
-            <h2 className="text-2xl font-bold mb-1">Available Coverage</h2>
-            <p className="text-sm text-muted">Select a policy that matches your flight details</p>
+            <h2 className="text-xl sm:text-2xl font-bold mb-1">Available Coverage</h2>
+            <p className="text-xs sm:text-sm text-muted">Select a policy that matches your flight details</p>
           </div>
-          <div className="flex gap-2">
+          <div className="grid grid-cols-3 gap-2 sm:flex sm:gap-2">
             <button
               onClick={() => setFilterType('all')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
@@ -188,7 +228,7 @@ export default function AvailablePolicies() {
           </div>
         ) : (
           <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
               {insuranceIds.map((id) => (
                 <InsuranceLoader key={`${id}-${refreshKey}`} insuranceId={id} onPurchaseSuccess={handlePurchaseSuccess} />
               ))}

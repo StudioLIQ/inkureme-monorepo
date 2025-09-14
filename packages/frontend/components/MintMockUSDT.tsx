@@ -86,7 +86,7 @@ export function MintMockUSDT() {
   }
 
   return (
-    <div className="card p-6">
+    <div className="card p-4 sm:p-6">
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-xl font-bold">Test Token Faucet</h2>
@@ -115,7 +115,7 @@ export function MintMockUSDT() {
       <button
         onClick={handleMint}
         disabled={isPending || isConfirming}
-        className="w-full px-6 py-3 bg-primary text-white rounded-full hover:opacity-90 disabled:bg-gray-400 transition-all font-semibold shadow-sm hover:shadow-md"
+        className="w-full px-5 py-3 bg-primary text-white rounded-full hover:opacity-90 disabled:bg-gray-400 transition-all font-semibold shadow-sm hover:shadow-md"
       >
         {isPending || isConfirming ? (
           <span className="flex items-center justify-center">
