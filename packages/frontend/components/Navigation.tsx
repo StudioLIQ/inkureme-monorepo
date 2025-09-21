@@ -1,11 +1,23 @@
-'use client'
+"use client"
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { WalletButton } from './WalletButton'
+import { useAccount } from 'wagmi'
+import { useUSDTBalance } from '@/hooks/useInsurance'
+import { formatUnits } from 'viem'
 
 export function Navigation() {
   const pathname = usePathname()
+  const { address, isConnected } = useAccount()
+  const { data: balance } = useUSDTBalance(address)
+
+  const formattedBalance = (() => {
+    const b = (balance as bigint | undefined) ?? 0n
+    const val = Number(formatUnits(b, 6))
+    if (Number.isNaN(val)) return '0.00'
+    return val.toFixed(2)
+  })()
 
   const navItems = [
     { href: '/', label: 'Home' },
@@ -40,6 +52,12 @@ export function Navigation() {
             </nav>
           </div>
           <div className="flex items-center gap-3">
+            {isConnected && (
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-gray-100 text-xs font-medium text-foreground">
+                <span className="text-gray-600">mUSDT</span>
+                <span className="tabular-nums">{formattedBalance}</span>
+              </div>
+            )}
             <WalletButton />
           </div>
         </div>

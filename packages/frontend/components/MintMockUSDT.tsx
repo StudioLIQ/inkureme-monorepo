@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract, useChainId, useSwitchChain } from 'wagmi'
-import { formatUnits } from 'viem'
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract, useChainId, useSwitchChain, usePublicClient } from 'wagmi'
+import { formatUnits, type Address } from 'viem'
 import { contracts } from '@/lib/config'
 
 function formatNumber(num: string | number): string {
@@ -20,6 +20,7 @@ export function MintMockUSDT() {
   const expectedChainId = Number(process.env.NEXT_PUBLIC_KAIA_CHAIN_ID || 1001)
   const wrongNetwork = isConnected && chainId !== expectedChainId
   const { switchChain, isPending: isSwitching } = useSwitchChain()
+  const publicClient = usePublicClient()
   const [txStatus, setTxStatus] = useState<string>('')
   const [showTransaction, setShowTransaction] = useState(false)
 
@@ -30,12 +31,56 @@ export function MintMockUSDT() {
   })
 
   // Read current balance
-  const { data: balance } = useReadContract({
+  const { data: balance, refetch: refetchBalance } = useReadContract({
     address: contracts.mockUSDT.address,
     abi: contracts.mockUSDT.abi,
     functionName: 'balanceOf',
     args: address ? [address] : undefined,
+    chainId,
+    watch: true,
+    query: { refetchInterval: 4000 },
   })
+
+  // Read cooldown and last mint timestamp
+  const { data: cooldown } = useReadContract({
+    address: contracts.mockUSDT.address,
+    abi: contracts.mockUSDT.abi,
+    functionName: 'MINT_COOLDOWN',
+    chainId,
+  })
+  const { data: lastMint, refetch: refetchLastMint } = useReadContract({
+    address: contracts.mockUSDT.address,
+    abi: contracts.mockUSDT.abi,
+    functionName: 'lastMintTimestamp',
+    args: address ? [address] : undefined,
+    chainId,
+    watch: true,
+  })
+
+  const [now, setNow] = useState<number>(() => Math.floor(Date.now() / 1000))
+  useEffect(() => {
+    if (!isConnected) return
+    const t = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000)
+    return () => clearInterval(t)
+  }, [isConnected])
+
+  const cooldownActive = (() => {
+    if (!cooldown || !lastMint) return false
+    const next = Number(lastMint) + Number(cooldown)
+    return now < next
+  })()
+  const secondsLeft = (() => {
+    if (!cooldown || !lastMint) return 0
+    const next = Number(lastMint) + Number(cooldown)
+    return Math.max(0, next - now)
+  })()
+  const fmtSeconds = (s: number) => {
+    const h = Math.floor(s / 3600)
+    const m = Math.floor((s % 3600) / 60)
+    const sec = s % 60
+    const pad = (n: number) => String(n).padStart(2, '0')
+    return `${pad(h)}:${pad(m)}:${pad(sec)}`
+  }
 
   const handleMint = async () => {
     if (!address || wrongNetwork) return
@@ -44,11 +89,24 @@ export function MintMockUSDT() {
     setShowTransaction(false)
     
     try {
+      // Ensure legacy-compatible gas fields for Kaia wallet
+      const gasPrice = await publicClient?.getGasPrice()
+      const gas = await publicClient?.estimateContractGas({
+        address: contracts.mockUSDT.address,
+        abi: contracts.mockUSDT.abi as any,
+        functionName: 'mint',
+        account: address as Address,
+        args: [],
+      })
+
       writeContract({
         address: contracts.mockUSDT.address,
         abi: contracts.mockUSDT.abi,
         functionName: 'mint',
-        // mint() has no arguments in MockUSDT
+        account: address as Address,
+        // Pass explicit gas and gasPrice for wallet compatibility
+        ...(gas ? { gas } : {}),
+        ...(gasPrice ? { gasPrice } : {}),
       })
     } catch (err) {
       console.error('Error minting:', err)
@@ -63,6 +121,9 @@ export function MintMockUSDT() {
       return
     }
     if (isSuccess) {
+      // Refresh related reads on success
+      refetchBalance()
+      refetchLastMint()
       setTxStatus('Success! Test tokens added to your wallet.')
       setShowTransaction(true)
       const t = setTimeout(() => {
@@ -71,7 +132,7 @@ export function MintMockUSDT() {
       }, 8000)
       return () => clearTimeout(t)
     }
-  }, [isConfirming, isSuccess])
+  }, [isConfirming, isSuccess, refetchBalance, refetchLastMint])
 
   if (!isConnected) {
     return (
@@ -117,24 +178,22 @@ export function MintMockUSDT() {
         <p className="text-sm text-muted">Get free test tokens to try the platform</p>
       </div>
       
-      {balance !== undefined && (
-        <div className="mb-6 p-4 bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg border border-primary-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs text-muted mb-1">Your Test Balance</p>
-              <p className="text-2xl font-bold text-foreground tabular-nums">
-                {formatNumber(formatUnits(balance as bigint, 6))}
-                <span className="text-sm font-normal text-muted ml-2">USDT</span>
-              </p>
-            </div>
-            <div className="text-3xl">💰</div>
+      <div className="mb-6 p-4 bg-gradient-to-r from-primary-50 to-primary-100 rounded-lg border border-primary-200">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs text-muted mb-1">Your Test Balance</p>
+            <p className="text-2xl font-bold text-foreground tabular-nums">
+              {formatNumber(formatUnits(((balance as bigint | undefined) ?? 0n) as bigint, 6))}
+              <span className="text-sm font-normal text-muted ml-2">mUSDT</span>
+            </p>
           </div>
+          <div className="text-3xl">💰</div>
         </div>
-      )}
+      </div>
 
       <button
         onClick={handleMint}
-        disabled={wrongNetwork || isPending || isConfirming}
+        disabled={wrongNetwork || cooldownActive || isPending || isConfirming}
         className="w-full px-5 py-3 bg-primary text-white rounded-full hover:opacity-90 disabled:bg-gray-400 transition-all font-semibold shadow-sm hover:shadow-md"
       >
         {isPending || isConfirming ? (
@@ -144,6 +203,13 @@ export function MintMockUSDT() {
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
             Processing...
+          </span>
+        ) : cooldownActive ? (
+          <span className="flex items-center justify-center gap-2">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Available in {fmtSeconds(secondsLeft)}
           </span>
         ) : (
           <span className="flex items-center justify-center gap-2">
@@ -209,6 +275,9 @@ export function MintMockUSDT() {
               )}
               {wrongNetwork && (
                 <p className="text-red-600 text-xs mt-1">You are on the wrong network. Switch to {expectedChainId === 1001 ? 'Kaia Kairos (Testnet)' : 'Kaia Mainnet'}.</p>
+              )}
+              {/(insufficient funds|base fee|gas)/i.test(String(error.message || '')) && !wrongNetwork && (
+                <p className="text-red-600 text-xs mt-1">Your wallet may not have enough test KAIA for gas. Get some test KAIA from a Kairos faucet and try again.</p>
               )}
             </div>
           </div>

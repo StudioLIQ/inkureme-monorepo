@@ -3,6 +3,7 @@ import { http, createConfig } from 'wagmi'
 import { injected } from 'wagmi/connectors'
 import MockUSDTAbi from './abis/MockUSDT.json'
 import FlightDelayInsuranceAbi from './abis/FlightDelayInsurance.json'
+import kairos from './deployments/kairos.json'
 
 // Kaia Testnet (Kairos)
 export const kaiaTestnet = defineChain({
@@ -56,13 +57,25 @@ export const kaiaMainnet = defineChain({
 })
 
 // Contract Addresses
+const CHAIN_ID = Number(process.env.NEXT_PUBLIC_KAIA_CHAIN_ID || 1001)
+const fromEnv = {
+  mock: process.env.NEXT_PUBLIC_MOCK_USDT_ADDRESS,
+  insurance: process.env.NEXT_PUBLIC_FLIGHT_INSURANCE_ADDRESS,
+}
+const fromDeployments = CHAIN_ID === 1001
+  ? { mock: kairos.MockUSDT, insurance: kairos.FlightDelayInsurance }
+  : { mock: undefined, insurance: undefined }
+
+const mockAddress = (fromDeployments.mock || fromEnv.mock || '0x0000000000000000000000000000000000000000') as `0x${string}`
+const insuranceAddress = (fromDeployments.insurance || fromEnv.insurance || '0x0000000000000000000000000000000000000000') as `0x${string}`
+
 export const contracts = {
   mockUSDT: {
-    address: (process.env.NEXT_PUBLIC_MOCK_USDT_ADDRESS || '0x0000000000000000000000000000000000000000') as `0x${string}`,
+    address: mockAddress,
     abi: MockUSDTAbi as readonly unknown[],
   },
   flightDelayInsurance: {
-    address: (process.env.NEXT_PUBLIC_FLIGHT_INSURANCE_ADDRESS || '0x0000000000000000000000000000000000000000') as `0x${string}`,
+    address: insuranceAddress,
     abi: FlightDelayInsuranceAbi as readonly unknown[],
   },
 }

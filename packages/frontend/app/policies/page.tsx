@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
 import { useTotalFlights } from '@/hooks/useInsurance'
+import { useMounted } from '@/hooks/useMounted'
 import Reveal from '@/components/Reveal'
 import CountUp from '@/components/CountUp'
 import dynamic from 'next/dynamic'
@@ -28,6 +29,7 @@ const PoliciesGrid = dynamic(() => import('@/components/policies/PoliciesGrid'),
 
 
 export default function AvailablePolicies() {
+  const mounted = useMounted()
   const { isConnected } = useAccount()
   const { data: totalInsurances, refetch } = useTotalFlights()
   const [refreshKey, setRefreshKey] = useState(0)
@@ -46,6 +48,28 @@ export default function AvailablePolicies() {
     // Refetch data when component mounts or refreshKey changes
     refetch()
   }, [refreshKey, refetch])
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-background pt-16">
+        <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="grid gap-3 sm:gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="card p-3 sm:p-4 animate-pulse">
+                <div className="h-3.5 w-20 bg-gray-200 rounded mb-1.5" />
+                <div className="h-4 w-40 bg-gray-200 rounded mb-3" />
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <div className="h-9 bg-gray-100 rounded" />
+                  <div className="h-9 bg-gray-100 rounded" />
+                </div>
+                <div className="h-8 bg-gray-200 rounded-full" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (!isConnected) {
     return (

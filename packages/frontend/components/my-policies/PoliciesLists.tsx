@@ -31,6 +31,7 @@ function MyPolicyCard({ insuranceId, isCreator }: { insuranceId: bigint; isCreat
   const { settleInsurance, isPending: isSettling, isConfirming: isSettlingConfirming, isSuccess: settleSuccess } = useSettleInsurance()
   const { claimPayout, isPending: isClaiming, isConfirming: isClaimingConfirming, isSuccess: claimSuccess } = useClaimPayout()
   const { withdrawFunds, isPending: isWithdrawing, isConfirming: isWithdrawingConfirming, isSuccess: withdrawSuccess } = useWithdrawFunds()
+  const enableSettle = process.env.NEXT_PUBLIC_ENABLE_SETTLE === 'true'
 
   useEffect(() => {
     if (settleSuccess || claimSuccess || withdrawSuccess) {
@@ -172,7 +173,7 @@ function MyPolicyCard({ insuranceId, isCreator }: { insuranceId: bigint; isCreat
       {/* Actions */}
       <div className="space-y-2">
         {/* Creator Actions */}
-        {isCreator && !isSettled && (
+        {enableSettle && isCreator && !isSettled && (
           <div className="p-4 bg-blue-50 rounded-lg">
             <p className="text-sm font-medium mb-3">Settle Policy</p>
             <button

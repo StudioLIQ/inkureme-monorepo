@@ -10,36 +10,31 @@ function FeaturedItem({ id }: { id: bigint }) {
   const { data: info } = useFlightInfo(id)
   const { data: meta } = useFlightMetadata(id)
 
-  if (!info || !meta) return null
+  const vm = useMemo(() => {
+    if (!info || !meta) return null
+    const fi = info as any
+    const md = meta as any
+    const producer = (fi?.producer ?? fi?.[0]) as `0x${string}`
+    const depositAmount = (fi?.depositAmount ?? fi?.[1]) as bigint
+    const insurancePrice = (fi?.insurancePrice ?? fi?.[2]) as bigint
+    const totalPolicies = (fi?.totalPolicies ?? fi?.[3]) as bigint
+    const soldPolicies = (fi?.soldPolicies ?? fi?.[4]) as bigint
+    const settled = (fi?.settled ?? fi?.[6]) as boolean
+    const delayed = (fi?.delayed ?? fi?.[7]) as boolean
+    const producerWithdrawn = (fi?.producerWithdrawn ?? fi?.[9]) as boolean
+    const flightCode = (md?.flightCode ?? md?.[0]) as string
+    const departureAirport = (md?.departureAirport ?? md?.[1]) as string
+    const arrivalAirport = (md?.arrivalAirport ?? md?.[2]) as string
+    const departureTimestamp = (md?.departureTimestamp ?? md?.[3]) as bigint
+    const delayThresholdMinutes = (md?.delayThresholdMinutes ?? md?.[4]) as number
 
-  const [producer, depositAmount, insurancePrice, totalPolicies, soldPolicies, _questionId, settled, delayed, _producerWithdrawable, producerWithdrawn] = info as unknown as [
-    `0x${string}`,
-    bigint,
-    bigint,
-    bigint,
-    bigint,
-    string,
-    boolean,
-    boolean,
-    bigint,
-    boolean,
-  ]
-  const [flightCode, departureAirport, arrivalAirport, departureTimestamp, delayThresholdMinutes] = meta as unknown as [
-    string,
-    string,
-    string,
-    bigint,
-    number,
-  ]
+    // active and upcoming within 4 weeks
+    const nowSec = Math.floor(Date.now() / 1000)
+    const fourWeeks = 28 * 24 * 60 * 60
+    const isUpcoming = Number(departureTimestamp) >= nowSec && Number(departureTimestamp) <= nowSec + fourWeeks
+    if (settled || (soldPolicies as bigint) >= (totalPolicies as bigint) || !isUpcoming) return null
 
-  // Only show active and upcoming within 4 weeks
-  const nowSec = Math.floor(Date.now() / 1000)
-  const fourWeeks = 28 * 24 * 60 * 60
-  const isUpcoming = Number(departureTimestamp) >= nowSec && Number(departureTimestamp) <= nowSec + fourWeeks
-  if (settled || soldPolicies >= totalPolicies || !isUpcoming) return null
-
-  const vm = useMemo(
-    () => ({
+    return {
       producer,
       depositAmount,
       insurancePrice,
@@ -53,24 +48,10 @@ function FeaturedItem({ id }: { id: bigint }) {
       arrivalAirport,
       departureTimestamp,
       delayThresholdMinutes,
-    }),
-    [
-      producer,
-      depositAmount,
-      insurancePrice,
-      totalPolicies,
-      soldPolicies,
-      settled,
-      delayed,
-      producerWithdrawn,
-      flightCode,
-      departureAirport,
-      arrivalAirport,
-      departureTimestamp,
-      delayThresholdMinutes,
-    ]
-  )
+    }
+  }, [info, meta])
 
+  if (!vm) return null
   return <PolicyCard insuranceId={id} flight={vm as any} featured />
 }
 

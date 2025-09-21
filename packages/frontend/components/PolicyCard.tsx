@@ -1,7 +1,7 @@
 "use client"
 
-import { useState, useEffect } from 'react'
-import { formatUnits } from 'viem'
+import { useState, useEffect, useRef } from 'react'
+import { formatUnits, maxUint256 } from 'viem'
 import { useAccount } from 'wagmi'
 import { useBuyInsurance, useApproveUSDT, useUSDTAllowance, useHasBoughtInsurance } from '@/hooks/useInsurance'
 import { contracts } from '@/lib/config'
@@ -50,13 +50,20 @@ export function PolicyCard({ insuranceId, flight, onPurchaseSuccess, featured }:
   const [showDetails, setShowDetails] = useState(false)
   
   const { data: allowance } = useUSDTAllowance(address, contracts.flightDelayInsurance.address)
-  const { data: hasBought } = useHasBoughtInsurance(insuranceId, address)
+  const { data: hasBought, refetch: refetchHasBought } = useHasBoughtInsurance(insuranceId, address)
+  const [covered, setCovered] = useState<boolean>(Boolean(hasBought))
   
   const { approve, isPending: isApproving, isConfirming: isApprovingConfirming, isSuccess: approveSuccess } = useApproveUSDT()
   const { buyInsurance, isPending: isBuying, isConfirming: isBuyingConfirming, isSuccess: buySuccess, error } = useBuyInsurance()
 
-  const needsApproval = allowance !== undefined && flight.insurancePrice > (allowance as bigint)
-  const availablePolicies = flight.totalPolicies - flight.soldPolicies
+  // Treat undefined allowance as 0 during initial load to avoid accidental direct buy
+  const allowanceBi = (allowance as bigint | undefined) ?? 0n
+  const needsApproval = flight.insurancePrice > allowanceBi
+  // Optimistic UI: reflect purchase immediately while chain state catches up
+  const purchasedDelta: bigint = covered && !hasBought ? 1n : 0n
+  const soldPoliciesDisplay = (flight.soldPolicies + purchasedDelta) as bigint
+  const totalPolicies = flight.totalPolicies
+  const availablePolicies = totalPolicies > soldPoliciesDisplay ? (totalPolicies - soldPoliciesDisplay) : 0n
   const payoutPerPolicy = flight.totalPolicies > BigInt(0) ? flight.depositAmount / flight.totalPolicies : BigInt(0)
   
   // Calculate coverage ratio (payout / premium)
@@ -66,11 +73,13 @@ export function PolicyCard({ insuranceId, flight, onPurchaseSuccess, featured }:
   
   // Calculate percentage sold
   const percentageSold = flight.totalPolicies > BigInt(0)
-    ? (Number(flight.soldPolicies) / Number(flight.totalPolicies)) * 100
+    ? (Number(soldPoliciesDisplay) / Number(flight.totalPolicies)) * 100
     : 0
 
+  const buyTriggeredRef = useRef(false)
   useEffect(() => {
-    if (approveSuccess && isPurchasing) {
+    if (approveSuccess && isPurchasing && !buyTriggeredRef.current) {
+      buyTriggeredRef.current = true
       buyInsurance(insuranceId)
     }
   }, [approveSuccess, isPurchasing, insuranceId, buyInsurance])
@@ -78,17 +87,28 @@ export function PolicyCard({ insuranceId, flight, onPurchaseSuccess, featured }:
   useEffect(() => {
     if (buySuccess) {
       setIsPurchasing(false)
+      buyTriggeredRef.current = false
+      // Ensure covered status updates immediately
+      refetchHasBought()
       onPurchaseSuccess?.()
     }
-  }, [buySuccess, onPurchaseSuccess])
+  }, [buySuccess, onPurchaseSuccess, refetchHasBought])
+
+  // Keep covered in sync with on-chain read; update optimistically on buy start/success
+  useEffect(() => {
+    setCovered(Boolean(hasBought))
+  }, [hasBought])
 
   const handleBuy = async () => {
     if (!address) return
     
     setIsPurchasing(true)
+    buyTriggeredRef.current = false
+    setCovered(true)
     
     if (needsApproval) {
-      approve(insurance.insurancePrice)
+      // Approve max once so future buys skip approval
+      approve(maxUint256)
     } else {
       buyInsurance(insuranceId)
     }
@@ -193,7 +213,7 @@ export function PolicyCard({ insuranceId, flight, onPurchaseSuccess, featured }:
       {/* Action Button */}
       {address && (
         <>
-          {!!hasBought ? (
+          {covered ? (
             <div className="px-4 py-3 bg-primary-100 text-primary rounded-full text-center text-sm font-medium">
               <div className="flex items-center justify-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
