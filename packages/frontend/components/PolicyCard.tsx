@@ -27,6 +27,7 @@ interface PolicyCardProps {
   insuranceId: bigint
   flight: FlightVM
   onPurchaseSuccess?: () => void
+  featured?: boolean
 }
 
 function formatNumber(num: string | number): string {
@@ -43,7 +44,7 @@ function formatDate(ts: bigint) {
   return d.toLocaleString('en-US', { timeZone: 'UTC' })
 }
 
-export function PolicyCard({ insuranceId, flight, onPurchaseSuccess }: PolicyCardProps) {
+export function PolicyCard({ insuranceId, flight, onPurchaseSuccess, featured }: PolicyCardProps) {
   const { address } = useAccount()
   const [isPurchasing, setIsPurchasing] = useState(false)
   const [showDetails, setShowDetails] = useState(false)
@@ -106,11 +107,18 @@ export function PolicyCard({ insuranceId, flight, onPurchaseSuccess }: PolicyCar
               {flight.flightCode} • {formatDate(flight.departureTimestamp)}
             </h3>
           </div>
-          {coverageRatio > 3 && (
-            <div className="ml-2 px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
-              High Value
-            </div>
-          )}
+          <div className="flex items-center gap-2 ml-2">
+            {featured && (
+              <div className="px-2 py-1 bg-indigo-100 text-indigo-700 text-xs font-medium rounded-full">
+                Featured
+              </div>
+            )}
+            {coverageRatio > 3 && (
+              <div className="px-2 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full">
+                High Value
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Coverage Details Button */}

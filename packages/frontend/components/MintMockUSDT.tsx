@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from 'wagmi'
+import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract, useChainId, useSwitchChain } from 'wagmi'
 import { formatUnits } from 'viem'
 import { contracts } from '@/lib/config'
 
@@ -16,6 +16,10 @@ function formatNumber(num: string | number): string {
 
 export function MintMockUSDT() {
   const { address, isConnected } = useAccount()
+  const chainId = useChainId()
+  const expectedChainId = Number(process.env.NEXT_PUBLIC_KAIA_CHAIN_ID || 1001)
+  const wrongNetwork = isConnected && chainId !== expectedChainId
+  const { switchChain, isPending: isSwitching } = useSwitchChain()
   const [txStatus, setTxStatus] = useState<string>('')
   const [showTransaction, setShowTransaction] = useState(false)
 
@@ -34,7 +38,7 @@ export function MintMockUSDT() {
   })
 
   const handleMint = async () => {
-    if (!address) return
+    if (!address || wrongNetwork) return
     
     setTxStatus('Preparing transaction...')
     setShowTransaction(false)
@@ -44,7 +48,7 @@ export function MintMockUSDT() {
         address: contracts.mockUSDT.address,
         abi: contracts.mockUSDT.abi,
         functionName: 'mint',
-        args: [address, BigInt(10000 * 10 ** 6)], // 10,000 USDT with 6 decimals
+        // mint() has no arguments in MockUSDT
       })
     } catch (err) {
       console.error('Error minting:', err)
@@ -87,6 +91,22 @@ export function MintMockUSDT() {
 
   return (
     <div className="card p-4 sm:p-6">
+      {wrongNetwork && (
+        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs text-yellow-800">
+              You are connected to the wrong network. Please switch your wallet to {expectedChainId === 1001 ? 'Kaia Kairos (Testnet)' : 'Kaia Mainnet'}.
+            </p>
+            <button
+              onClick={() => switchChain({ chainId: expectedChainId })}
+              disabled={isSwitching}
+              className="px-3 py-1.5 rounded-full text-xs font-medium bg-yellow-600 text-white hover:opacity-90 disabled:opacity-60"
+            >
+              {isSwitching ? 'Switching…' : 'Switch Network'}
+            </button>
+          </div>
+        </div>
+      )}
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-xl font-bold">Test Token Faucet</h2>
@@ -114,7 +134,7 @@ export function MintMockUSDT() {
 
       <button
         onClick={handleMint}
-        disabled={isPending || isConfirming}
+        disabled={wrongNetwork || isPending || isConfirming}
         className="w-full px-5 py-3 bg-primary text-white rounded-full hover:opacity-90 disabled:bg-gray-400 transition-all font-semibold shadow-sm hover:shadow-md"
       >
         {isPending || isConfirming ? (
@@ -160,7 +180,7 @@ export function MintMockUSDT() {
               </p>
               {showTransaction && hash && (
                 <a 
-                  href={`https://baobab.kaiascan.io/tx/${hash}`}
+                  href={`${chainId === 1001 ? 'https://kairos.kaiascan.io' : 'https://kaiascan.io'}/tx/${hash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-xs text-primary hover:opacity-90 mt-1 inline-flex items-center gap-1"
@@ -183,8 +203,13 @@ export function MintMockUSDT() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <div>
-              <p className="text-red-700 text-sm font-medium">Transaction Failed</p>
-              <p className="text-red-600 text-xs mt-1">Please try again or check your wallet connection</p>
+              <p className="text-red-700 text-sm font-medium">{String(error.message || 'Transaction Failed')}</p>
+              {String(error.message || '').includes('Must wait 24 hours') && (
+                <p className="text-red-600 text-xs mt-1">You can mint once every 24 hours. Please try again later.</p>
+              )}
+              {wrongNetwork && (
+                <p className="text-red-600 text-xs mt-1">You are on the wrong network. Switch to {expectedChainId === 1001 ? 'Kaia Kairos (Testnet)' : 'Kaia Mainnet'}.</p>
+              )}
             </div>
           </div>
         </div>

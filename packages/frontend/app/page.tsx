@@ -70,6 +70,35 @@ const Stats = dynamic(() => import('@/components/home/Stats'), {
     </section>
   ),
 })
+const FeaturedPolicies = dynamic(() => import('@/components/home/FeaturedPolicies'), {
+  ssr: false,
+  loading: () => (
+    <section className="py-8 sm:py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8" aria-busy>
+        <div className="flex items-end justify-between mb-4 sm:mb-6">
+          <div>
+            <div className="h-5 w-40 bg-gray-200 rounded mb-1.5 animate-pulse" />
+            <div className="h-3 w-64 bg-gray-100 rounded animate-pulse" />
+          </div>
+          <div className="h-8 w-28 bg-gray-200 rounded-full animate-pulse" />
+        </div>
+        <div className="grid gap-4 sm:gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="card p-4 animate-pulse">
+              <div className="h-3 w-24 bg-gray-200 rounded mb-2" />
+              <div className="h-4 w-40 bg-gray-100 rounded mb-4" />
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                <div className="h-9 bg-gray-100 rounded" />
+                <div className="h-9 bg-gray-100 rounded" />
+              </div>
+              <div className="h-9 bg-gray-200 rounded-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  ),
+})
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { useState } from 'react'
 
@@ -204,6 +233,11 @@ export default function Home() {
 
       {/* Divider */}
       <div className="border-t border-[--color-border] my-6 sm:my-8 lg:my-10" />
+
+      {/* Featured Policies */}
+      <LazyMount>
+        <FeaturedPolicies />
+      </LazyMount>
 
       {/* Trust & Transparency (code-split) */}
       <LazyMount>

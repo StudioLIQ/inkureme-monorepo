@@ -3,7 +3,7 @@
   "network": "kairos",
   "contracts": {
     "MockUSDT": "0x980C1f069Ad090B18219e9411d72558A294A32CD",
-    "FlightDelayInsurance": "0xEa34A74eEBf33A4a1846ef64af9B8d77EB14B956"
+    "FlightDelayInsurance": "0x4515aeC1Be9b3920febb8083b26ee41DcC5F1e71"
   },
-  "updatedAt": "2025-09-21T09:23:50Z"
+  "updatedAt": "2025-09-21T09:50:14Z"
 }
