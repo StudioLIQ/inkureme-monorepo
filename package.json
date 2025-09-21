@@ -11,7 +11,9 @@
     "contracts:test": "cd packages/contracts && forge test",
     "contracts:deploy": "cd packages/contracts && forge script script/DeployAll.s.sol --rpc-url $RPC_URL --broadcast",
     "frontend:dev": "cd packages/frontend && npm run dev",
-    "frontend:build": "cd packages/frontend && npm run build"
+    "frontend:build": "cd packages/frontend && npm run build",
+    "liff:install": "npm install @line/liff@2.23.1 @line/liff-mini-dapp@1.0.0 ethers@5.7.2 caver-js@1.11.1",
+    "liff:install-types": "npm install -D @types/line__liff"
   },
   "devDependencies": {
     "prettier": "^3.0.0"

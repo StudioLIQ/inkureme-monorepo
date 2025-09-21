@@ -1,0 +1,381 @@
+/**
+ * LIFF Design System
+ * Optimized styles for LINE app integration
+ */
+
+/* LINE App Color Palette */
+:root {
+  /* Primary Colors - LINE Brand */
+  --line-primary: #06C755;
+  --line-primary-dark: #05A647;
+  --line-primary-light: #08E863;
+
+  /* Secondary Colors */
+  --line-secondary: #4A4A4A;
+  --line-secondary-light: #707070;
+
+  /* Background Colors */
+  --line-bg-primary: #FFFFFF;
+  --line-bg-secondary: #F7F8FA;
+  --line-bg-tertiary: #E8EBF0;
+
+  /* Text Colors */
+  --line-text-primary: #2E2E2E;
+  --line-text-secondary: #707070;
+  --line-text-tertiary: #B7B7B7;
+
+  /* Status Colors */
+  --line-success: #06C755;
+  --line-warning: #FFB900;
+  --line-error: #FF3B30;
+  --line-info: #007AFF;
+
+  /* Border & Shadow */
+  --line-border: #E8EBF0;
+  --line-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --line-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
+  --line-shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.15);
+
+  /* Spacing - Optimized for mobile */
+  --liff-spacing-xs: 4px;
+  --liff-spacing-sm: 8px;
+  --liff-spacing-md: 16px;
+  --liff-spacing-lg: 24px;
+  --liff-spacing-xl: 32px;
+
+  /* Typography */
+  --liff-font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, "Hiragino Sans", "Yu Gothic", sans-serif;
+  --liff-font-size-xs: 11px;
+  --liff-font-size-sm: 13px;
+  --liff-font-size-base: 15px;
+  --liff-font-size-lg: 17px;
+  --liff-font-size-xl: 20px;
+  --liff-font-size-2xl: 24px;
+
+  /* Border Radius */
+  --liff-radius-sm: 4px;
+  --liff-radius-md: 8px;
+  --liff-radius-lg: 12px;
+  --liff-radius-xl: 16px;
+  --liff-radius-full: 9999px;
+
+  /* Safe Areas for notched devices */
+  --safe-area-top: env(safe-area-inset-top);
+  --safe-area-bottom: env(safe-area-inset-bottom);
+  --safe-area-left: env(safe-area-inset-left);
+  --safe-area-right: env(safe-area-inset-right);
+}
+
+/* LIFF Size Classes */
+.liff-compact {
+  /* Compact: 100% width, 50% height */
+  max-height: 50vh;
+}
+
+.liff-tall {
+  /* Tall: 100% width, 75% height */
+  max-height: 75vh;
+}
+
+.liff-full {
+  /* Full: 100% width, 100% height */
+  min-height: 100vh;
+  min-height: calc(100vh - var(--safe-area-top) - var(--safe-area-bottom));
+}
+
+/* Base Styles for LIFF Apps */
+.liff-app {
+  font-family: var(--liff-font-family);
+  color: var(--line-text-primary);
+  background-color: var(--line-bg-secondary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* Prevent text selection on mobile */
+  -webkit-user-select: none;
+  user-select: none;
+
+  /* Smooth scrolling */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Safe Area Container */
+.liff-safe-area {
+  padding-top: var(--safe-area-top);
+  padding-bottom: var(--safe-area-bottom);
+  padding-left: var(--safe-area-left);
+  padding-right: var(--safe-area-right);
+}
+
+/* Header Styles - LINE Native Look */
+.liff-header {
+  background: var(--line-bg-primary);
+  border-bottom: 1px solid var(--line-border);
+  padding: var(--liff-spacing-md);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.liff-header-title {
+  font-size: var(--liff-font-size-lg);
+  font-weight: 600;
+  color: var(--line-text-primary);
+  text-align: center;
+}
+
+/* Content Container */
+.liff-content {
+  padding: var(--liff-spacing-md);
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Card Component - LINE Style */
+.liff-card {
+  background: var(--line-bg-primary);
+  border-radius: var(--liff-radius-lg);
+  padding: var(--liff-spacing-md);
+  margin-bottom: var(--liff-spacing-md);
+  box-shadow: var(--line-shadow-sm);
+}
+
+/* Button Styles - LINE Native */
+.liff-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--liff-spacing-sm) var(--liff-spacing-lg);
+  font-size: var(--liff-font-size-base);
+  font-weight: 500;
+  border-radius: var(--liff-radius-full);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px; /* iOS touch target */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.liff-button-primary {
+  background-color: var(--line-primary);
+  color: white;
+}
+
+.liff-button-primary:active {
+  background-color: var(--line-primary-dark);
+  transform: scale(0.98);
+}
+
+.liff-button-secondary {
+  background-color: var(--line-bg-tertiary);
+  color: var(--line-text-primary);
+}
+
+.liff-button-secondary:active {
+  background-color: var(--line-border);
+  transform: scale(0.98);
+}
+
+.liff-button-full {
+  width: 100%;
+}
+
+/* Input Styles - LINE Native */
+.liff-input {
+  width: 100%;
+  padding: var(--liff-spacing-sm) var(--liff-spacing-md);
+  font-size: var(--liff-font-size-base);
+  border: 1px solid var(--line-border);
+  border-radius: var(--liff-radius-md);
+  background-color: var(--line-bg-primary);
+  color: var(--line-text-primary);
+  transition: border-color 0.2s ease;
+  min-height: 44px;
+  -webkit-appearance: none;
+}
+
+.liff-input:focus {
+  outline: none;
+  border-color: var(--line-primary);
+}
+
+/* List Component - LINE Style */
+.liff-list {
+  background: var(--line-bg-primary);
+  border-radius: var(--liff-radius-lg);
+  overflow: hidden;
+}
+
+.liff-list-item {
+  padding: var(--liff-spacing-md);
+  border-bottom: 1px solid var(--line-border);
+  display: flex;
+  align-items: center;
+  min-height: 56px;
+  transition: background-color 0.2s ease;
+}
+
+.liff-list-item:active {
+  background-color: var(--line-bg-secondary);
+}
+
+.liff-list-item:last-child {
+  border-bottom: none;
+}
+
+/* Badge Styles */
+.liff-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  font-size: var(--liff-font-size-xs);
+  font-weight: 500;
+  border-radius: var(--liff-radius-full);
+  background-color: var(--line-bg-tertiary);
+  color: var(--line-text-secondary);
+}
+
+.liff-badge-success {
+  background-color: rgba(6, 199, 85, 0.1);
+  color: var(--line-success);
+}
+
+.liff-badge-warning {
+  background-color: rgba(255, 185, 0, 0.1);
+  color: var(--line-warning);
+}
+
+.liff-badge-error {
+  background-color: rgba(255, 59, 48, 0.1);
+  color: var(--line-error);
+}
+
+/* Loading States */
+.liff-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--line-bg-tertiary) 0%,
+    var(--line-bg-secondary) 50%,
+    var(--line-bg-tertiary) 100%
+  );
+  background-size: 200% 100%;
+  animation: liff-skeleton-loading 1.5s ease-in-out infinite;
+  border-radius: var(--liff-radius-md);
+}
+
+@keyframes liff-skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Spinner */
+.liff-spinner {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--line-border);
+  border-top-color: var(--line-primary);
+  border-radius: 50%;
+  animation: liff-spin 0.8s linear infinite;
+}
+
+@keyframes liff-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Bottom Navigation - LINE Style */
+.liff-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--line-bg-primary);
+  border-top: 1px solid var(--line-border);
+  padding: var(--liff-spacing-sm) var(--liff-spacing-md);
+  padding-bottom: calc(var(--liff-spacing-sm) + var(--safe-area-bottom));
+  display: flex;
+  gap: var(--liff-spacing-sm);
+  z-index: 100;
+}
+
+/* Modal/Dialog - LINE Style */
+.liff-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--liff-spacing-lg);
+}
+
+.liff-modal {
+  background: var(--line-bg-primary);
+  border-radius: var(--liff-radius-xl);
+  max-width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--line-shadow-lg);
+}
+
+/* Toast/Snackbar - LINE Style */
+.liff-toast {
+  position: fixed;
+  bottom: calc(var(--liff-spacing-lg) + var(--safe-area-bottom));
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--line-text-primary);
+  color: white;
+  padding: var(--liff-spacing-sm) var(--liff-spacing-md);
+  border-radius: var(--liff-radius-full);
+  font-size: var(--liff-font-size-sm);
+  box-shadow: var(--line-shadow-md);
+  z-index: 300;
+  animation: liff-toast-in 0.3s ease;
+}
+
+@keyframes liff-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Responsive Utilities */
+@media (max-width: 375px) {
+  /* iPhone SE, older phones */
+  .liff-content {
+    padding: var(--liff-spacing-sm);
+  }
+}
+
+@media (min-width: 768px) {
+  /* Tablets in LIFF */
+  .liff-content {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --line-bg-primary: #1C1C1E;
+    --line-bg-secondary: #2C2C2E;
+    --line-bg-tertiary: #3A3A3C;
+    --line-text-primary: #FFFFFF;
+    --line-text-secondary: #8E8E93;
+    --line-border: #3A3A3C;
+  }
+}
