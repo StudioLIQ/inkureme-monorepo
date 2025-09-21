@@ -1,0 +1,9 @@
+{
+  "chainId": 1001,
+  "network": "kairos",
+  "contracts": {
+    "MockUSDT": "0x980C1f069Ad090B18219e9411d72558A294A32CD",
+    "FlightDelayInsurance": "0xEa34A74eEBf33A4a1846ef64af9B8d77EB14B956"
+  },
+  "updatedAt": "2025-09-21T09:23:50Z"
+}
